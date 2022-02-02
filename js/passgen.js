@@ -31,8 +31,12 @@ function init() {
 }
 
 function keyDown(key) {
-    stir(Math.floor(window.performance.now() * 10.6))
+    stir(Math.floor(window.performance.now()))
     stir(key.key.charCodeAt(0))
+
+    if (key.key === " ") {
+        key.preventDefault()    // prevent space from scrolling the page
+    }
 
     const start = window.performance.now()
     while (window.performance.now - start < 100) {
@@ -53,7 +57,7 @@ function keyDown(key) {
 }
 
 function keyUp(key) {
-    stir(Math.floor(window.performance.now() * 10e6))
+    stir(Math.floor(window.performance.now()))
 
     const start = window.performance.now()
     while (window.performance.now - start < 100) {
