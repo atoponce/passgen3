@@ -1,5 +1,5 @@
 // GLOBALS
-const NMIXES = 100 * 256     // number of spritz characters discarded per output character
+const NMIXES = 100 * 256    // number of spritz characters discarded per output character
 const PRECHARS = 22         // number of characters required before any output
 const CHARSPEROUTPUT = 3    // number of characters input per output character
 
@@ -34,10 +34,12 @@ function keyDown(key) {
     stir(Math.floor(window.performance.now() * 10.6))
     stir(key.key.charCodeAt(0))
 
+    let count = 0
     const start = window.performance.now()
     while (window.performance.now - start < 100) {
-        stir(0)             // stir more in case browsers enabled fingerprint resistance
+        count++             // stir more in case of browser fingerprint resistance
     }
+    stir(count)
 
     charCount++
 
@@ -55,10 +57,12 @@ function keyDown(key) {
 function keyUp(key) {
     stir(Math.floor(window.performance.now() * 10e6))
 
+    let count = 0
     const start = window.performance.now()
     while (window.performance.now - start < 100) {
-        stir(0)             // stir more in case browsers enabled fingerprint resistance
+        count++             // stir more in case of browser fingerprint resistance
     }
+    stir(count)
 
     return true
 }
