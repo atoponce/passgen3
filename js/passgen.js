@@ -27,7 +27,9 @@ function init() {
 }
 
 function keyDown(key) {
-    stir(Math.floor(window.performance.now()))  // stir current key time (microseconds)
+    if (key.key === " ") {
+        key.preventDefault()                    // prevent space from scrolling the page
+    }
 
     if (key.key.charCodeAt(0) % 2 === 1) {      // use key code as the Spritz register "ww"
         ww = key.key.charCodeAt(0)
@@ -35,13 +37,11 @@ function keyDown(key) {
         ww = 95 + key.key.charCodeAt(0)         // make odd (must be coprime to 256) and don't collide with another key code
     }
 
-    if (key.key === " ") {
-        key.preventDefault()    // prevent space from scrolling the page
-    }
+    stir(Math.floor(window.performance.now()))  // stir current key time (microseconds)
 
     const start = window.performance.now()
     while (window.performance.now - start < 100) {
-        stir(0)             // stir more in case of browser fingerprint resistance
+        stir(0)                                 // stir more in case of browser fingerprint resistance
     }
 
     charCount++
