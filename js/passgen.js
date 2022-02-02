@@ -200,11 +200,11 @@ function addDiceware(ch) {
     let choice
 
     if (ch === "D") {
-        randArr[0] = extract(256)
+        randArr[0] = extract(128)               // 7 bits +
     } else {
-        randArr[1] = extract(256)
-        choice = randArr[0] << 8 | randArr[1]
-        word = diceware8k[choice % 8192]
+        randArr[1] = extract(64)                // 6 bits =
+        choice = randArr[0] << 6 | randArr[1]   // 13 bits
+        word = diceware8k[choice]               // (8192 possibilities)
         textarea.value += word
     }
     
