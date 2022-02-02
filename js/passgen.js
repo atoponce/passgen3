@@ -103,7 +103,7 @@ function extract(r) {
     while (true) {
         q = stir(0)
 
-        if (q < r * Math.floor(256 / r)) { // avoid biased choice
+        if (q >= r * Math.floor(256 / r)) { // avoid biased choice
             break
         }
     }
