@@ -6,8 +6,8 @@ const CHARSPEROUTPUT = 3    // number of characters input per output character
 let consonantNext = true
 
 // Spritz parameters
-const S = []                // Spritz state vector
-let ii = jj = kk = zz = 0
+const S = Array.from({length: 256}, (_, i) => i)
+let ii = jj = kk = zz = 0   // Spritz registers
 let ww = 1                  // must be coprime to 256
 
 const template = document.getElementById("template")
@@ -20,10 +20,6 @@ let randArr = [0, 0]        // array to hold random numbers for diceware
 function init() {
     stir(Date.now())        // use current time (milliseconds) as source randomness
 
-    for (let i = 0; i < 256; i++) {
-        S[i] = i
-    }
-
     document.addEventListener("keydown", keyDown)
     document.addEventListener("keyup", keyUp)
 
@@ -31,8 +27,13 @@ function init() {
 }
 
 function keyDown(key) {
-    stir(Math.floor(window.performance.now()))
-    stir(key.key.charCodeAt(0))
+    stir(Math.floor(window.performance.now()))  // stir current key time (microseconds)
+
+    if (key.key.charCodeAt(0) % 2 === 1) {      // use key code as the Spritz register "ww"
+        ww = key.key.charCodeAt(0)
+    } else {
+        ww = 95 + key.key.charCodeAt(0)         // make odd (must be coprime to 256) and don't collide with another key code
+    }
 
     if (key.key === " ") {
         key.preventDefault()    // prevent space from scrolling the page
@@ -93,7 +94,7 @@ function stir(x) {
 function extract(r) {
     let q = 0
     ii = jj = kk = zz = 0
-    ww += 2                   // all odd numbers are coprime to 256
+    w = 1
 
     for (let k = 0; k < NMIXES; k++) { // we can afford a lot of mixing
         stir(0)
