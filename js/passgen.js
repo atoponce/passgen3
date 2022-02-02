@@ -92,7 +92,7 @@ function stir(x) {
 }
 
 function extract(r) {
-    let q = 0
+    let q = stir(0)
     let min = 256 % r
 
     ii = jj = kk = zz = 0
