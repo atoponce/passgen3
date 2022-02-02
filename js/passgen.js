@@ -94,7 +94,7 @@ function stir(x) {
 function extract(r) {
     let q = 0
     ii = jj = kk = zz = 0
-    w = 1
+    ww = 1
 
     for (let k = 0; k < NMIXES; k++) { // we can afford a lot of mixing
         stir(0)
