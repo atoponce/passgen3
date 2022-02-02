@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="css/bootstrap.min.css" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>PassGen: A Password Generator in JavaScript</title>
+        <style>
+            select {
+                margin-bottom: 10px;
+            }
+            textarea {
+                font-family: monospace;
+                height: 200px;
+                resize: none;
+            }
+        </style>
+    </head>
+    <body>
+        <main>
+            <div class="row justify-content-center">
+                <div class="row col-sm-6">
+                    <h1>PassGen3: A JavaScript Password Generator</h1>
+                    <p>This web app was inspired by <a href="https://theworld.com/~reinhold/passgen.html">the old Java applet version created by Arnold Reinhold</a>, the latest version of which was released in 2002. Because browsers no longer support Java applets, a JavaScript-based web app was created instead.</p>
+                    <p>To use this generator, just click anywhere in the window to ensure it's focused and start typing. At first, dots will be desplayed in the text window. After you have typen enough characters, your password will start to appear. Continue typing to complete the password. Keep typing to generater more passwords.</p>
+                    <p>You can type in anything you like or just close your eyes and type characters at random. For extra credit, type in the serial numbers from a couple of dollar bills or other paper currency. The web app records the time in microseconds when you press down and release each key and uses these time values, along with the key characters you type, as a source of randomness. There will normally be enough variability in your typing times to ensure that the characters that appear in the text window are highly random.</p>
+                    <p><strong>Caution: </strong>Do not hold down a single key for a long time and rely on your computer's "auto repeat" feature to generate the characters. This will not produce enough randomness for good security.</p>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-sm-6">
+                    <select class="form-select" id="template">
+                        <option selected>DW DW DW DW DW DW</option>
+                        <option>SSSSS SSSSS SSSSS SSSSS SSSSS</option>
+                        <option>MMMMMMMMMMMM</option>
+                        <option>CCCCC CCCCC CCCCC</option>
+                        <option>LLLLL LLLLL LLLLL</option>
+                        <option>HHHH HHHH HHHH HHHH HHHH HHHH HHHH HHHH</option>
+                        <option>66666 66666 66666 66666 66666 66666</option>                        
+                        <option>99999 99999 99999 99999 99999 99999 99999 99999</option>
+                        <option>AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA</option>
+                    </select>
+                    <div class="input-group">
+                        <textarea readonly class="form-control" id="textarea"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="row text-center">
+                <p>Click anywhere on the page and just start typing at random.</p>
+                <p>Passwords should begin to appear after 25 input characters.</p>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-auto col-sm-6">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">Template</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Bits</th>
+                                <th scope="col">Sample</th>
+                                <th scope="col">Suggested use</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table">
+                            <tr>
+                                <td>DW DW DW DW DW DW</td>
+                                <td>Six Diceware words</td>
+                                <td>78</td>
+                                <td>plaza n8 rt tern rainy ghoul</td>
+                                <td>High security master passphrase</td>
+                            </tr>
+                            <tr>
+                                <td>SSSSS SSSSS SSSSS SSSSS SSSSS</td>
+                                <td>Five pronounceable pseudowords</td>
+                                <td>80</td>
+                                <td>zujun safig losab nigoh komug</td>
+                                <td>High security master passphrase</td>
+                            </tr>
+                            <tr>
+                                <td>MMMMMMMMMMMM</td>
+                                <td>Maximum strength -- all graphical characters</td>
+                                <td>78.6</td>
+                                <td>_0=yM2.AC)W[</td>
+                                <td>High security password</td>
+                            </tr>
+                            <tr>
+                                <td>CCCCC CCCCC CCCCC</td>
+                                <td>Letters and numbers</td>
+                                <td>77.5</td>
+                                <td>0AF2X 95C0Q VWG29</td>
+                                <td>High security password</td>
+                            </tr>
+                            <tr>
+                                <td>LLLLL LLLLL LLLLL</td>
+                                <td>Crypto strength password</td>
+                                <td>89.3</td>
+                                <td>Xn0iJ QDZYy ati6P</td>
+                                <td>High security password</td>
+                            </tr>
+                            <tr>
+                                <td>HHHH HHHH HHHH HHHH HHHH HHHH HHHH HHHH</td>
+                                <td>Random Hexadecimal</td>
+                                <td>128</td>
+                                <td>9940 0FF2 AFFD 3BF2 4E3C 407B 82A3 3CCD</td>
+                                <td>Symmetric cipher key</td>
+                            </tr>
+                            <tr>
+                                <td>66666 66666 66666 66666 66666 66666</td>
+                                <td>Random dice throws</td>
+                                <td>2.5/ch</td>
+                                <td>55636 41266 42426 24335 15236 33515</td>
+                                <td>Diceware, board games</td>
+                            </tr>                        
+                            <tr>
+                                <td>99999 99999 99999 99999 99999 99999 99999 99999</td>
+                                <td>Random decimal digits</td>
+                                <td>3.3/ch</td>
+                                <td>52515 86607 84774 55383 51452 60536 55237 70725</td>
+                                <td>Statistical use</td>
+                            </tr>
+                            <tr>
+                                <td>AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA</td>
+                                <td>Random characters</td>
+                                <td>4.7/ch</td>
+                                <td>NZINN GVGQF UBRDD WILOM IPIQS LREOH NKIDH DEGJV</td>
+                                <td>One time pads</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+        <script src="js/bootstrap.bundle.min.js"></script>
+        <script src="js/diceware8k.js"></script>
+        <script src="js/passgen.js"></script>
+    </body>
+</html>
