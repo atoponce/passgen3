@@ -92,7 +92,9 @@ function stir(x) {
 }
 
 function extract(r) {
-    let q = 0
+    let num = 0
+    let min = 2 ** 8 % r
+
     ii = jj = kk = zz = 0
     ww = 1
 
@@ -100,15 +102,11 @@ function extract(r) {
         stir(0)
     }
     
-    while (true) {
-        q = stir(0)
-
-        if (q >= r * Math.floor(256 / r)) { // avoid biased choice
-            break
-        }
-    }
-
-    return (q % r)
+    do {
+        num = stir(0)
+    } while (num < min)
+    
+    return (num % r)
 }
 
 function addChar() {
