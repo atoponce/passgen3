@@ -92,8 +92,8 @@ function stir(x) {
 }
 
 function extract(r) {
-    let num = 0
-    let min = 2 ** 8 % r
+    let q = 0
+    let min = 256 % r
 
     ii = jj = kk = zz = 0
     ww = 1
@@ -103,10 +103,10 @@ function extract(r) {
     }
     
     do {
-        num = stir(0)
-    } while (num < min)
+        q = stir(0)
+    } while (q < min)       // avoid bias choice
     
-    return (num % r)
+    return (q % r)
 }
 
 function addChar() {
