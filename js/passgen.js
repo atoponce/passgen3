@@ -34,7 +34,7 @@ function keyDown(key) {
     if (key.key.charCodeAt(0) % 2 === 1) {      // use key code as the Spritz register "ww"
         ww = key.key.charCodeAt(0)
     } else {
-        ww = 95 + key.key.charCodeAt(0)         // make odd (must be coprime to 256) and don't collide with another key code
+        ww = 97 + key.key.charCodeAt(0)         // make odd (must be coprime to 256) and don't collide with another key code
     }
 
     stir(Math.floor(window.performance.now()))  // stir current key time (microseconds)
