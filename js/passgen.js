@@ -34,12 +34,10 @@ function keyDown(key) {
     stir(Math.floor(window.performance.now() * 10.6))
     stir(key.key.charCodeAt(0))
 
-    let count = 0
     const start = window.performance.now()
     while (window.performance.now - start < 100) {
-        count++             // stir more in case of browser fingerprint resistance
+        stir(0)             // stir more in case of browser fingerprint resistance
     }
-    stir(count)
 
     charCount++
 
@@ -57,12 +55,10 @@ function keyDown(key) {
 function keyUp(key) {
     stir(Math.floor(window.performance.now() * 10e6))
 
-    let count = 0
     const start = window.performance.now()
     while (window.performance.now - start < 100) {
-        count++             // stir more in case of browser fingerprint resistance
+        stir(0)             // stir more in case of browser fingerprint resistance
     }
-    stir(count)
 
     return true
 }
