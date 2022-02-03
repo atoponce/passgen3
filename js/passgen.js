@@ -27,6 +27,10 @@ function init() {
     document.addEventListener("keydown", keyDown)
     document.addEventListener("keyup", keyUp)
 
+    setInterval(function() {
+        textarea.scrollTop = textarea.scrollHeight
+    }, 100)
+
     const fp = generateFingerprint()                        // generate basic browser fingerprint
     const fpHash = SipHashDouble.hash_hex("", fp)           // calculate 128-bit hash
 
