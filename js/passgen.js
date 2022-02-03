@@ -27,11 +27,11 @@ function init() {
     document.addEventListener("keydown", keyDown)
     document.addEventListener("keyup", keyUp)
 
-    const fp = generateFingerprint()                    // generate basic browser fingerprint
-    const fpHash = SipHashDouble.hash_hex("", fp)       // calculate 128-bit hash
+    const fp = generateFingerprint()                        // generate basic browser fingerprint
+    const fpHash = SipHashDouble.hash_hex("", fp)           // calculate 128-bit hash
 
     for (let i = 0; i < fpHash.length; i += 2) {
-        let n = parseInt(fpHash.substring(i, i + 2), 16)    // Up to 4,096 mixes
+        let n = parseInt(fpHash.substring(i, i + 2), 16)    // Up to 4,080 mixes
         stir(n)
     }
 
