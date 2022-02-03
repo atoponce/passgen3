@@ -1,5 +1,5 @@
 // GLOBALS
-const NMIXES = 100 * 256    // number of spritz characters discarded per output character
+const NMIXES = 10 * 256     // number of spritz characters discarded per output character
 const PRECHARS = 22         // number of characters required before any output
 const CHARSPEROUTPUT = 3    // number of characters input per output character
 
@@ -18,12 +18,21 @@ let charCount = 0           // allows multiple input characters per output chara
 let randArr = [0, 0]        // array to hold random numbers for diceware
 
 function init() {
-    stir(Date.now())        // use current time (milliseconds) as source randomness
+    stir(Date.now())                                    // use current time (milliseconds) as source randomness
 
     document.addEventListener("keydown", keyDown)
     document.addEventListener("keyup", keyUp)
 
-    stir(Date.now())        // use current time as source randomness again
+    const fp = generateFingerprint()                    // generate basic browser fingerprint
+    const fpHash = SipHashDouble.hash_hex("", fp)       // calculate 128-bit hash
+
+    for (let i = 0; i < fpHash.length; i += 2) {
+        for (let j = 0; j < parseInt(fpHash.substring(i, i + 2), 16); j++) {
+            stir(0)                                     // up to 4,096 mixes
+        }
+    }
+
+    stir(Date.now())                                    // use current time as source randomness again
 }
 
 function keyDown(key) {
@@ -92,16 +101,14 @@ function stir(x) {
 }
 
 function extract(r) {
-    let q = stir(0)
     let min = 256 % r
-
     ii = jj = kk = zz = 0
     ww = 1
 
     for (let k = 0; k < NMIXES; k++) { // we can afford a lot of mixing
         stir(0)
     }
-    
+
     do {
         q = stir(0)
     } while (q < min)       // avoid bias choice
