@@ -18,7 +18,10 @@ let charCount = 0           // allows multiple input characters per output chara
 let randArr = [0, 0]        // array to hold random numbers for diceware
 
 function init() {
-    stir(Date.now())                                    // use current time (milliseconds) as source randomness
+    // use current time (milliseconds) as source randomness
+    let now = Date.now()
+    let ms = Math.floor((now/1e3 - Math.floor(now/1e3)) * 1e3)
+    stir(ms)
 
     document.addEventListener("keydown", keyDown)
     document.addEventListener("keyup", keyUp)
@@ -27,32 +30,33 @@ function init() {
     const fpHash = SipHashDouble.hash_hex("", fp)       // calculate 128-bit hash
 
     for (let i = 0; i < fpHash.length; i += 2) {
-        for (let j = 0; j < parseInt(fpHash.substring(i, i + 2), 16); j++) {
-            stir(0)                                     // up to 4,096 mixes
-        }
+        let n = parseInt(fpHash.substring(i, i + 2), 16)    // Up to 4,096 mixes
+        stir(n)
     }
 
-    stir(Date.now())                                    // use current time as source randomness again
+    // use current time as source randomness again
+    now = Date.now()
+    ms = Math.floor((now/1e3 - Math.floor(now/1e3)) * 1e3)
+    stir(ms)
+
 }
 
 function keyDown(key) {
     if (key.key === " ") {
-        key.preventDefault()                    // prevent space from scrolling the page
+        key.preventDefault()                // prevent space from scrolling the page
     }
 
-    if (key.key.charCodeAt(0) % 2 === 1) {      // use key code as the Spritz register "ww"
+    if (key.key.charCodeAt(0) % 2 === 1) {  // use key code as the Spritz register "ww"
         ww = key.key.charCodeAt(0)
     } else {
-        ww = 97 + key.key.charCodeAt(0)         // make odd (must be coprime to 256) and don't collide with another key code
+        ww = 97 + key.key.charCodeAt(0)     // make odd (must be coprime to 256) and don't collide with another key code
     }
 
-    stir(Math.floor(window.performance.now()))  // stir current key time (microseconds)
-
-    const start = window.performance.now()
-    while (window.performance.now - start < 100) {
-        stir(0)                                 // stir more in case of browser fingerprint resistance
-    }
-
+    // use current time of key down (milliseconds) as source randomness
+    let now = Date.now()
+    let ms = Math.floor((now/1e3 - Math.floor(now/1e3)) * 1e3)
+    stir(ms)
+    
     charCount++
 
     if (charCount < PRECHARS) {
@@ -67,19 +71,17 @@ function keyDown(key) {
 }
 
 function keyUp(key) {
-    stir(Math.floor(window.performance.now()))
-
-    const start = window.performance.now()
-    while (window.performance.now - start < 100) {
-        stir(0)             // stir more in case of browser fingerprint resistance
-    }
+    // use current time of key up (milliseconds) as source randomness
+    let now = Date.now()
+    let ms = Math.floor((now/1e3 - Math.floor(now/1e3)) * 1e3)
+    stir(ms)
 
     return true
 }
 
 function stir(x) {
     // Maintain a pool of randomness using the Spritz algorithm
-    while (true) {
+    for (let i = 0; i < x; i++) {
         ii = (ii + ww) % 256
         jj = (kk + S[(jj + S[ii]) % 256]) % 256
         kk = (kk + ii + S[jj]) % 256
@@ -89,12 +91,6 @@ function stir(x) {
         S[jj] = swap
 
         zz = S[(jj + S[(ii + S[(zz + kk) % 256]) % 256]) % 256]
-
-        x = Math.floor(x / 256)
-
-        if (x === 0) {
-            break
-        }
     }
 
     return zz
@@ -104,14 +100,12 @@ function extract(r) {
     let min = 256 % r
     ii = jj = kk = zz = 0
     ww = 1
-
-    for (let k = 0; k < NMIXES; k++) { // we can afford a lot of mixing
-        stir(0)
-    }
+    
+    stir(NMIXES)        // we can afford a lot of mixing
 
     do {
-        q = stir(0)
-    } while (q < min)       // avoid bias choice
+        q = stir(1)
+    } while (q < min)   // avoid bias choice
     
     return (q % r)
 }
