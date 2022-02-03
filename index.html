@@ -17,41 +17,36 @@
         </style>
     </head>
     <body>
-        <main>
-            <div class="row justify-content-center">
-                <div class="row col-sm-6">
-                    <h1>PassGen3: A JavaScript Password Generator</h1>
-                    <p>This web app was inspired by <a href="https://theworld.com/~reinhold/passgen.html">the old Java applet version created by Arnold Reinhold</a>, the latest version of which was released in 2002. Because browsers no longer support Java applets, a JavaScript-based web app was created instead.</p>
-                    <p>To use this generator, just click anywhere in the window to ensure it's focused and start typing. At first, dots will be displayed in the text window. After you have typed enough characters, your password will start to appear. Continue typing to complete the password. Keep typing to generate more passwords.</p>
-                    <p>You can type in anything you like or just close your eyes and type characters at random. For extra credit, type in the serial numbers from a couple of dollar bills or other paper currency. The web app records the time in milliseconds when you press down and release each key and uses these time values, along with the key characters you type, as a source of randomness. There will normally be enough variability in your typing times to ensure that the characters that appear in the text window are highly random.</p>
-                    <p>This page is not (yet) mobile-friendly.</p>
-                    <p><strong>Caution: </strong>Do not hold down a single key for a long time and rely on your computer's "auto repeat" feature to generate the characters. This will not produce enough randomness for good security.</p>
+        <main class="container-fluid">
+            <div class="row"> <!-- PassGen3 header -->
+                <h1>PassGen3: A JavaScript Password Generator</h1>
+                <p>This web app was inspired by <a href="https://theworld.com/~reinhold/passgen.html">the old Java applet version created by Arnold Reinhold</a>, the latest version of which was released in 2002. Because browsers no longer support Java applets, a JavaScript-based web app was created instead.</p>
+                <p>To use this generator, just click anywhere in the window to ensure it's focused and start typing. At first, dots will be displayed in the text window. After you have typed enough characters, your password will start to appear. Continue typing to complete the password. Keep typing to generate more passwords.</p>
+                <p>You can type in anything you like or just close your eyes and type characters at random. For extra credit, type in the serial numbers from a couple of dollar bills or other paper currency. The web app records the time in milliseconds when you press down and release each key and uses these time values, along with the key characters you type, as a source of randomness. There will normally be enough variability in your typing times to ensure that the characters that appear in the text window are highly random.</p>
+                <p>This page is not (yet) mobile-friendly.</p>
+                <p><strong>Caution: </strong>Do not hold down a single key for a long time and rely on your computer's "auto repeat" feature to generate the characters. This will not produce enough randomness for good security.</p>
+            </div>
+            <div class="row col-6"> <!-- Select and textarea -->
+                <select class="form-select" id="template">
+                    <option selected>DW DW DW DW DW DW</option>
+                    <option>SSSSS SSSSS SSSSS SSSSS SSSSS</option>
+                    <option>MMMMMMMMMMMM</option>
+                    <option>CCCCC CCCCC CCCCC</option>
+                    <option>LLLLL LLLLL LLLLL</option>
+                    <option>HHHH HHHH HHHH HHHH HHHH HHHH HHHH HHHH</option>
+                    <option>66666 66666 66666 66666 66666 66666</option>                        
+                    <option>99999 99999 99999 99999 99999 99999 99999 99999</option>
+                    <option>AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA</option>
+                </select>
+                <div class="input-group">
+                    <textarea readonly class="form-control" id="textarea"></textarea>
                 </div>
+                <p>Click anywhere on the page and just start typing at random. Passwords should begin to appear after 25 input characters.</p>
             </div>
-            <div class="row justify-content-center">
-                <div class="col-sm-6">
-                    <select class="form-select" id="template">
-                        <option selected>DW DW DW DW DW DW</option>
-                        <option>SSSSS SSSSS SSSSS SSSSS SSSSS</option>
-                        <option>MMMMMMMMMMMM</option>
-                        <option>CCCCC CCCCC CCCCC</option>
-                        <option>LLLLL LLLLL LLLLL</option>
-                        <option>HHHH HHHH HHHH HHHH HHHH HHHH HHHH HHHH</option>
-                        <option>66666 66666 66666 66666 66666 66666</option>                        
-                        <option>99999 99999 99999 99999 99999 99999 99999 99999</option>
-                        <option>AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA</option>
-                    </select>
-                    <div class="input-group">
-                        <textarea readonly class="form-control" id="textarea"></textarea>
-                    </div>
-                </div>
-            </div>
-            <div class="row text-center">
-                <p>Click anywhere on the page and just start typing at random.</p>
-                <p>Passwords should begin to appear after 25 input characters.</p>
-            </div>
-            <div class="row justify-content-center">
-                <div class="col-auto col-sm-6">
+            <div class="row"> <!-- Templates and table -->
+                <h3>Templates</h3>
+                <p>The PassGen3 web app lets you select a pattern for the random strings it generates. Just pick a template from the selection box at the top of the text area. The following table describes each template and shows its appropriate entropy strength in bits.</p>
+                <div class="panel-body">
                     <table class="table table-striped">
                         <thead>
                             <tr>
@@ -117,7 +112,7 @@
                                 <td>Random decimal digits</td>
                                 <td>3.3/ch</td>
                                 <td>52515 86607 84774 55383 51452 60536 55237 70725</td>
-                                <td>Statistical use</td>
+                                <td>Statistical use, one type pads</td>
                             </tr>
                             <tr>
                                 <td>AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA</td>
@@ -129,6 +124,50 @@
                         </tbody>
                     </table>
                 </div>
+                <p>The characters in each pattern template determine what sort of random characters are presented:</p>
+                <div class="panel-body">
+                    <dl class="row"> <!-- Description list -->
+                        <dt class="col-sm-1">A</dt><dd class="col-sm-11">Letter, A-Z</dd>
+                        <dt class="col-sm-1">9</dt><dd class="col-sm-11">Digit, 0-9</dd>
+                        <dt class="col-sm-1">C</dt><dd class="col-sm-11">Alphanumeric, 0-9, A-Z</dd>
+                        <dt class="col-sm-1">L</dt><dd class="col-sm-11">Alphanumeric, upper and lower case, 0-9, A-Z, a-z</dd>
+                        <dt class="col-sm-1">M</dt><dd class="col-sm-11">Graphical 7-bit ASCII character, 0-9, A-Z, a-z, !"#$%&amp;'()*+,-./:;&lt;=&gt;?[\]^_{|}~</dd>
+                        <dt class="col-sm-1">H</dt><dd class="col-sm-11">Hexadecimal (base 16) digit, 0-9 A-F</dd>
+                        <dt class="col-sm-1">S</dt><dd class="col-sm-11">Syllable, alternating consonant and vowel</dd>
+                        <dt class="col-sm-1">6</dt><dd class="col-sm-11">Dice throw, 1-6</dd>
+                        <dt class="col-sm-1">DW</dt><dd class="col-sm-11">Diceware word, from the 8k word list</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="row"> <!-- Security -->
+                <h3>Security</h3>
+                <p>This web app is not the most secure way to make your password! Traces of the passwords you create can be left behind in your computer's memory, among other risks. For maximum security we still recommend using ordinary dice to select a password or passphrase. See the <a href="http://world.std.com/~reinhold/diceware.html">Diceware page</a> for more details.</p>
+                <p>Also note that Microsoft's Windows and most Unix operating systems (at least the ones we've tested) force keyboard interrupts to occur at intervals separated on the order of 50 milliseconds. This effectively reduces the resolution of the Java timer and, as a result, the amount of randomness accumulated for each keystroke. To compensate for this problem, PassGen3 requires 3 input characters for every output character.</p>
+                <p>None the less, using this web app to make up a password is far safer than picking your pet's name or your mother's birthday. Because JavaScript web apps download from an untrusted web server, there is risk of mischief. This web app does not make any network connections, so you can run it off-line after you download it and inspect the source code.</p>
+                <p>You should be aware that someone could substitute a bogus version of the web app that creates apparently random passwords that are, in fact, easy for the substituter to guess. To reduce this risk, <a href="https://github.com/atoponce/passgen3">the source code of the web app is published as open source</a>.</p>
+                <p>Random generation methods will very rarely create a password that is an English word or phrase or simple letter pattern. If a password looks like an ordinary word (or, with the MMMMMMMM template, is all the same case) simply type some more and use the next password.</p>
+            </div>
+            <div class="row"> <!-- Technical Details -->
+                <h3>Techincal Details</h3>
+                <p>PassGen3 uses a strong method for mixing randomness. The first version of PassGen used an entropy distiller with a 64-bit internal state, based on a linear congruential algorithm. PassGen2 used an entropy distiller based on the weak RC4 cipher. PassGen3 uses an entropy distiller based on the Spritz cipher.</p>
+                <p>As in Spritz, PassGen3 uses a 256-byte state vector "S" that is initialized to be a null permutation. As entropy is collected, "S" is permuted according to the Spritz key setup algorithm. The Spritz register "w" stores the ASCII value of each pressed and released keystroke during mixing. Even-numbered ASCII values are added to 97 to force them to be odd and prevent collisions with odd-numbered ASCII values ("w" must be coprime to 256 so "i" can cycle through all 256 values). As such, the Spritz state "S" is highly mixed by each keystroke. Before each password output character is emitted, the "i", "j", "k", "z", and "w" registers are reset and "S" is subjected to 10 full mixing passes. This is exactly equivalent to running the Spritz cipher generation algorithm on "S" and discarding the first 2,560 output characters.</p>
+                <p>When using an 8-bit value to select a character from an alphabet of length "n", there is a risk of bias if "n" does not evenly divide 256. To eliminate this, candidate cipher output bytes are discarded if they are outside of the range that is the largest multiple of "n" less than or equal to 256.</p>
+                <p><a href="https://semanticscholar.org/paper/18b763d71b21558232bca8335338400159d8e492">Published analysis</a> have shown that Spritz can be distinguished from true random white noise. But this is not of consquence to compromise the generation of a few passwords. PassGen3 performs extensive additional mixing before each password character is output to eliminate any potential RC4-like biases, as Spritz is similar in design to RC4. PassGen3 adds a feature of generating a basic 128-bit browser fingerprint with SipHash and mixes "S" based on this value when the page is first loaded.</p>
+                <p>Using Spritz has several advantages. The capacity of Spritz as a sponge construction is large, at 936 bits, larger than SHA-3. The design as a sponge construction which makes it ideal for other uses, such as cryptographic hash functions, deterministic random bit generators, an authenticated encryption cipher with associated data, etc. Like RC4, it is simple to implement and easy to verify. The last consideration is important for anyone contemplating using a utility downloaded over the Internet. Unfortunately, Spritz operates about 50% more slowly in software than RC4, and is slower in hardware when compared to Keccak, another sponge algorithm. Performance isn't a concern for this web app however. People desiring even greater assurance in security can use the dace based password generation techniques described at <a href="https://www.diceware.com">https://www.diceware.com</a>.
+            </div>
+            <div class="row"> <!-- Terms and Conditions -->
+                <h3>Terms and Conditions</h3>
+                <p>PassGen, PassGen2 &copy; 1996, 2003 Arnold G. Reinhold, Cambridge, MA, USA</p>
+                <p>PassGen3 &copy; 2022 Aaron Toponce</p>
+                <p>PassGen and PassGen2 is free software; you can redistribute it and/or modify it under the terms of the <a href="https://www.gnu.org/licenses/licenses.html">GNU General Public License</a> as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version</p>
+                <p>PassGen3 is free software; you can redistribute it and/or modify it under the terms of the <a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU General Public License, version 3</a> as published by the Free Software Foundation, with two additional restrictions:</p>
+                <div class="panel-body">
+                    <ol>
+                        <li>You may not redistribute versions modified to create "malware," including versions that deliberately produce inaccurate or misleading results or that surreptitiously capture data entered by the user or that produce "random" values that are predictable or guessable.</li>
+                        <li>You may not redistribute this program in ways that violate the export control laws of the United States.</li>
+                    </ol>
+                </div>
+                <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the <a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU General Public License</a> for more details. If the previous link does not work, you can request a copy of the license by writing to the Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA.</p>
             </div>
         </main>
         <script src="js/bootstrap.bundle.min.js"></script>
