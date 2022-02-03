@@ -13,9 +13,10 @@ let ww = 1                  // must be coprime to 256
 const template = document.getElementById("template")
 const textarea = document.getElementById("textarea")
 
-let ntmpl = 0               // keeps track of where we are in the textarea
-let charCount = 0           // allows multiple input characters per output character
-let randArr = [0, 0]        // array to hold random numbers for diceware
+let selTmpl = template.selectedIndex    // track which template we're using
+let ntmpl = 0                           // keeps track of where we are in the textarea
+let charCount = 0                       // allows multiple input characters per output character
+let randArr = [0, 0]                    // array to hold random numbers for diceware
 
 function init() {
     // use current time (milliseconds) as source randomness
@@ -119,6 +120,13 @@ function addChar() {
         textarea.value += "\n"
         ntmpl = 0
         consonantNext = true
+        return
+    }
+
+    if (selTmpl != template.selectedIndex) {
+        textarea.value += "\n"
+        ntmpl = 0
+        selTmpl = template.selectedIndex
         return
     }
 
