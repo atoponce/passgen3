@@ -3,21 +3,21 @@ const NMIXES = 10 * 256     // number of spritz characters discarded per output 
 const PRECHARS = 22         // number of characters required before any output
 const CHARSPEROUTPUT = 3    // number of characters input per output character
 
-let dicewarePos = 1
-let consonantNext = true
+let DICEWAREPOS = 1
+let CONSONANTNEXT = true
 
 // Spritz parameters
-const S = Uint8Array.from({length: 256}, (_, i) => i)
-let ii = jj = kk = zz = 0   // Spritz registers
-let ww = 1                  // must be coprime to 256
+const S = Uint8Array.from({length: 256}, (_, idx) => idx)
+let I = J = K = Z = 0       // Spritz registers
+let W = 1                   // must be coprime to 256
 
-const template = document.getElementById("template")
-const textarea = document.getElementById("textarea")
+const TEMPLATE = document.getElementById("template")
+const TEXTAREA = document.getElementById("textarea")
 
-let selTmpl = template.selectedIndex    // track which template we're using
-let ntmpl = 0                           // keeps track of where we are in the textarea
-let charCount = 0                       // allows multiple input characters per output character
-let randArr = [0, 0]                    // array to hold random numbers for diceware
+let SELTMPL = TEMPLATE.selectedIndex    // track which template we're using
+let NTMPL = 0                           // keeps track of where we are in the textarea
+let CHARCOUNT = 0                       // allows multiple input characters per output character
+let RANDARR = [0, 0]                    // array to hold random numbers for diceware
 
 /**
  * Initialize the Spritz state to a random state before keystrokes are entered.
@@ -52,22 +52,22 @@ function keyDown(key) {
         key.preventDefault()                // prevent space from scrolling the page
     }
 
-    if (key.key.charCodeAt(0) % 2 === 1) {  // use key code as the Spritz register "ww"
-        ww = key.key.charCodeAt(0)
+    if (key.key.charCodeAt(0) % 2 === 1) {  // use key code as the Spritz register "W"
+        W = key.key.charCodeAt(0)
     } else {
-        ww = 97 + key.key.charCodeAt(0)     // make odd (must be coprime to 256) and don't collide with another key code
+        W = 97 + key.key.charCodeAt(0)     // make odd (must be coprime to 256) and don't collide with another key code
     }
 
     // use current time of key down (milliseconds) as source randomness
     stir(Date.now() % 1000)
 
-    charCount++
+    CHARCOUNT++
 
-    if (charCount < PRECHARS) {
-        textarea.value += "."
-    } else if (charCount === PRECHARS) {
-        textarea.value += ".\n"
-    } else if (charCount % CHARSPEROUTPUT === 0) {
+    if (CHARCOUNT < PRECHARS) {
+        TEXTAREA.value += "."
+    } else if (CHARCOUNT === PRECHARS) {
+        TEXTAREA.value += ".\n"
+    } else if (CHARCOUNT % CHARSPEROUTPUT === 0) {
         addChar()
     }
 
@@ -104,26 +104,25 @@ function stir(x) {
 
     /**
      * Swap array elements a and b
+     * @param {Array} arr
      * @param {number} a
      * @param {number} b
      */
-    var _swap = function(a, b) {
-        let tmp = S[a]
-        S[a] = S[b]
-        S[b] = tmp
+    var _swap = function(arr, a, b) {
+        [S[a], S[b]] = [S[b], S[a]]
     }
 
     for (let i = 0; i < x; i++) {
-        ii = _madd(ii, ww)
-        jj = _madd(kk, S[_madd(jj, S[ii])])
-        kk = _madd(kk + ii, S[jj])
+        I = _madd(I, W)
+        J = _madd(K, S[_madd(J, S[I])])
+        K = _madd(K + I, S[J])
 
-        _swap(S[ii], S[jj])
+        _swap(S, I, J)
 
-        zz = S[_madd(jj, S[_madd(ii, S[_madd(zz, kk)])])]
+        Z = S[_madd(J, S[_madd(I, S[_madd(Z, K)])])]
     }
 
-    return zz
+    return Z
 }
 
 /**
@@ -133,8 +132,8 @@ function stir(x) {
  */
 function extract(r) {
     let min = 256 % r
-    ii = jj = kk = zz = 0
-    ww = 1
+    I = J = K = Z = 0
+    W = 1
 
     stir(NMIXES)        // we can afford a lot of mixing
 
@@ -154,23 +153,23 @@ function addChar() {
     let tmplChar
     let charIn
 
-    if (ntmpl >= template.value.length) {
-        textarea.value += "\n"
-        ntmpl = 0
-        consonantNext = true
+    if (NTMPL >= TEMPLATE.value.length) {
+        TEXTAREA.value += "\n"
+        NTMPL = 0
+        CONSONANTNEXT = true
         return
     }
 
-    if (selTmpl != template.selectedIndex) {
-        textarea.value += "\n"
-        ntmpl = 0
-        selTmpl = template.selectedIndex
+    if (SELTMPL != TEMPLATE.selectedIndex) {
+        TEXTAREA.value += "\n"
+        NTMPL = 0
+        SELTMPL = TEMPLATE.selectedIndex
         return
     }
 
-    textarea.scrollTop = textarea.scrollHeight
-    tmplChar = template.value[ntmpl]
-    ntmpl++
+    TEXTAREA.scrollTop = TEXTAREA.scrollHeight
+    tmplChar = TEMPLATE.value[NTMPL]
+    NTMPL++
 
     if (tmplChar === " ") {
         ch = 32
@@ -217,8 +216,8 @@ function addChar() {
     }
 
     charIn = String.fromCharCode(ch)
-    textarea.value += charIn
-    consonantNext = true
+    TEXTAREA.value += charIn
+    CONSONANTNEXT = true
     ch = 0
     charIn = null
     return
@@ -233,15 +232,15 @@ function addSyllable() {
     const vowels = "aiou"
     const consonants = "bdfghjklmnprstvz"
 
-    if (consonantNext) {
+    if (CONSONANTNEXT) {
         syl += consonants[extract(consonants.length)]
-        consonantNext = false
+        CONSONANTNEXT = false
     } else {
         syl += vowels[extract(vowels.length)]
-        consonantNext = true
+        CONSONANTNEXT = true
     }
 
-    textarea.value += syl
+    TEXTAREA.value += syl
     syl = ""
 
     return
@@ -255,15 +254,15 @@ function addDiceware() {
     let word
     let choice
 
-    if (dicewarePos === 1) {
-        randArr[0] = extract(128)               // 7 bits +
-        dicewarePos++
+    if (DICEWAREPOS === 1) {
+        RANDARR[0] = extract(128)               // 7 bits +
+        DICEWAREPOS++
     } else {
-        randArr[1] = extract(64)                // 6 bits =
-        choice = randArr[0] << 6 | randArr[1]   // 13 bits
-        word = diceware8k[choice]               // (8192 possibilities)
-        textarea.value += word
-        dicewarePos--
+        RANDARR[1] = extract(64)                // 6 bits =
+        choice = RANDARR[0] << 6 | RANDARR[1]   // 13 bits =
+        word = diceware8k[choice]               // 8192 possibilities
+        TEXTAREA.value += word
+        DICEWAREPOS--
     }
 
     return
