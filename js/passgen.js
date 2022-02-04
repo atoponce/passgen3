@@ -14,7 +14,7 @@ let W = 1                   // must be coprime to 256
 const TEMPLATE = document.getElementById("template")
 const TEXTAREA = document.getElementById("textarea")
 
-const SELTMPL = TEMPLATE.selectedIndex    // track which template we're using
+let SELTMPL = TEMPLATE.selectedIndex  // track which template we're using
 let NTMPL = 0                           // keeps track of where we are in the textarea
 let CHARCOUNT = 0                       // allows multiple input characters per output character
 let RANDARR = [0, 0]                    // array to hold random numbers for diceware
