@@ -202,8 +202,7 @@ function addChar() {
             ch += 61                // 61 + 36 = 'a'
         }
     } else if (tmplChar === "M") {  // Random 7-bit ASCII graphical [[:graph:]]]
-        ch = extract(94)
-        ch += 33                    // 33 = '!'
+        ch = extract(94) + 33       // 33 = '!'
     } else if (tmplChar === "S") {  // random syllable (see addSyllable below)
         addSyllable()
         return
