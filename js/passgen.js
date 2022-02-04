@@ -3,10 +3,11 @@ const NMIXES = 10 * 256     // number of spritz characters discarded per output 
 const PRECHARS = 22         // number of characters required before any output
 const CHARSPEROUTPUT = 3    // number of characters input per output character
 
+let dicewarePos = 1
 let consonantNext = true
 
 // Spritz parameters
-const S = Array.from({length: 256}, (_, i) => i)
+const S = Uint8Array.from({length: 256}, (_, i) => i)
 let ii = jj = kk = zz = 0   // Spritz registers
 let ww = 1                  // must be coprime to 256
 
@@ -18,11 +19,12 @@ let ntmpl = 0                           // keeps track of where we are in the te
 let charCount = 0                       // allows multiple input characters per output character
 let randArr = [0, 0]                    // array to hold random numbers for diceware
 
+/**
+ * Initialize the Spritz state to a random state before keystrokes are entered.
+ */
 function init() {
     // use current time (milliseconds) as source randomness
-    let now = Date.now()
-    let ms = Math.floor((now/1e3 - Math.floor(now/1e3)) * 1e3)
-    stir(ms)
+    stir(Date.now() % 1000)
 
     document.addEventListener("keydown", keyDown)
     document.addEventListener("keyup", keyUp)
@@ -36,12 +38,15 @@ function init() {
     }
 
     // use current time as source randomness again
-    now = Date.now()
-    ms = Math.floor((now/1e3 - Math.floor(now/1e3)) * 1e3)
-    stir(ms)
+    stir(Date.now() % 1000)
 
 }
 
+/**
+ * Register a key press time in milliseconds and its value.
+ * @param {Object} key - The keystroke
+ * @returns true
+ */
 function keyDown(key) {
     if (key.key === " ") {
         key.preventDefault()                // prevent space from scrolling the page
@@ -54,10 +59,8 @@ function keyDown(key) {
     }
 
     // use current time of key down (milliseconds) as source randomness
-    let now = Date.now()
-    let ms = Math.floor((now/1e3 - Math.floor(now/1e3)) * 1e3)
-    stir(ms)
-    
+    stir(Date.now() % 1000)
+
     charCount++
 
     if (charCount < PRECHARS) {
@@ -71,46 +74,81 @@ function keyDown(key) {
     return true
 }
 
+/**
+ * Register a key release time in milliseconds.
+ * @param {Object} key - The keystroke
+ * @returns true
+ */
 function keyUp(key) {
     // use current time of key up (milliseconds) as source randomness
-    let now = Date.now()
-    let ms = Math.floor((now/1e3 - Math.floor(now/1e3)) * 1e3)
-    stir(ms)
+    stir(Date.now() % 1000)
 
     return true
 }
 
+/**
+ * Maintain a pool of randomness using the Spritz algorithm.
+ * @param {number} x - The number of mixing operations
+ * @returns {number} - A random number from Spritz
+ */
 function stir(x) {
-    // Maintain a pool of randomness using the Spritz algorithm
+    /**
+     * Returns the sum modulo 256 of a and b
+     * @param {number} a
+     * @param {number} b
+     * @returns {number} - Sum of a and b
+     */
+    var _madd = function(a, b) {
+        return (a + b) % 256
+    }
+
+    /**
+     * Swap array elements a and b
+     * @param {number} a
+     * @param {number} b
+     */
+    var _swap = function(a, b) {
+        let tmp = S[a]
+        S[a] = S[b]
+        S[b] = tmp
+    }
+
     for (let i = 0; i < x; i++) {
-        ii = (ii + ww) & 255
-        jj = (kk + S[(jj + S[ii]) & 255]) & 255
-        kk = (kk + ii + S[jj]) & 255
+        ii = _madd(ii, ww)
+        jj = _madd(kk, S[_madd(jj, S[ii])])
+        kk = _madd(kk + ii, S[jj])
 
-        let swap = S[ii]
-        S[ii] = S[jj]
-        S[jj] = swap
+        _swap(S[ii], S[jj])
 
-        zz = S[(jj + S[(ii + S[(zz + kk) & 255]) & 255]) & 255] & 255
+        zz = S[_madd(jj, S[_madd(ii, S[_madd(zz, kk)])])]
     }
 
     return zz
 }
 
+/**
+ * Uniformly extract a random number from Spritz.
+ * @param {number} r - A maximum value
+ * @returns {number} - A number between [0, r-1]
+ */
 function extract(r) {
     let min = 256 % r
     ii = jj = kk = zz = 0
     ww = 1
-    
+
     stir(NMIXES)        // we can afford a lot of mixing
 
     do {
         q = stir(1)
-    } while (q < min)   // avoid bias choice
-    
+    } while (q < min)   // avoid biased choice
+
     return (q % r)
 }
 
+/**
+ * Generate a character or word based on the extracted random number from Spritz.
+ * @returns undefined
+ */
 function addChar() {
     let ch = 0
     let tmplChar
@@ -145,8 +183,8 @@ function addChar() {
         } else {
             ch += 55                // 55 + 10 = 'A'
         }
-    } else if (tmplChar === "D" || tmplChar === "W") {  // Random Diceware word
-        addDiceware(tmplChar)
+    } else if (tmplChar === "D") {  // Random Diceware word
+        addDiceware()
         return
     } else if (tmplChar === "H") {  // Random hexadecimal [[:xdigit:]]
         ch = extract(16)
@@ -186,6 +224,10 @@ function addChar() {
     return
 }
 
+/**
+ * Build a pronounceable password alternating consonant and vowel.
+ * @returns undefined
+ */
 function addSyllable() {
     let syl = ""
     const vowels = "aiou"
@@ -205,19 +247,25 @@ function addSyllable() {
     return
 }
 
-function addDiceware(ch) {
+/**
+ * Build a Diweware passphrase. Requires 2 * CHARSPEROUTPUT per word.
+ * @returns undefined
+ */
+function addDiceware() {
     let word
     let choice
 
-    if (ch === "D") {
+    if (dicewarePos === 1) {
         randArr[0] = extract(128)               // 7 bits +
+        dicewarePos++
     } else {
         randArr[1] = extract(64)                // 6 bits =
         choice = randArr[0] << 6 | randArr[1]   // 13 bits
         word = diceware8k[choice]               // (8192 possibilities)
         textarea.value += word
+        dicewarePos--
     }
-    
+
     return
 }
 
