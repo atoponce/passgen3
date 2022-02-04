@@ -83,15 +83,15 @@ function keyUp(key) {
 function stir(x) {
     // Maintain a pool of randomness using the Spritz algorithm
     for (let i = 0; i < x; i++) {
-        ii = (ii + ww) % 256
-        jj = (kk + S[(jj + S[ii]) % 256]) % 256
-        kk = (kk + ii + S[jj]) % 256
+        ii = (ii + ww) & 255
+        jj = (kk + S[(jj + S[ii]) & 255]) & 255
+        kk = (kk + ii + S[jj]) & 255
 
         let swap = S[ii]
         S[ii] = S[jj]
         S[jj] = swap
 
-        zz = S[(jj + S[(ii + S[(zz + kk) % 256]) % 256]) % 256]
+        zz = S[(jj + S[(ii + S[(zz + kk) & 255]) & 255]) & 255] & 255
     }
 
     return zz
