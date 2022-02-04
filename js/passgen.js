@@ -14,7 +14,7 @@ let W = 1                   // must be coprime to 256
 const TEMPLATE = document.getElementById("template")
 const TEXTAREA = document.getElementById("textarea")
 
-let SELTMPL = TEMPLATE.selectedIndex    // track which template we're using
+const SELTMPL = TEMPLATE.selectedIndex    // track which template we're using
 let NTMPL = 0                           // keeps track of where we are in the textarea
 let CHARCOUNT = 0                       // allows multiple input characters per output character
 let RANDARR = [0, 0]                    // array to hold random numbers for diceware
@@ -33,7 +33,7 @@ function init() {
     const fpHash = SipHashDouble.hash_hex("", fp)           // calculate 128-bit hash
 
     for (let i = 0; i < fpHash.length; i += 2) {
-        let n = parseInt(fpHash.substring(i, i + 2), 16)    // Up to 4,080 mixes
+        const n = parseInt(fpHash.substring(i, i + 2), 16)    // Up to 4,080 mixes
         stir(n)
     }
 
@@ -131,7 +131,7 @@ function stir(x) {
  * @returns {number} - A number between [0, r-1]
  */
 function extract(r) {
-    let min = 256 % r
+    const min = 256 % r
     I = J = K = Z = 0
     W = 1
 
