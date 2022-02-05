@@ -131,6 +131,7 @@ function stir(x) {
  * @returns {number} - A number between [0, r-1]
  */
 function extract(r) {
+    let q
     const min = 256 % r
     I = J = K = Z = 0
     W = 1
