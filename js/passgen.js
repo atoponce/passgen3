@@ -257,6 +257,7 @@ function addDiceware() {
     if (DICEWAREPOS === 1) {
         RANDARR[0] = extract(128)               // 7 bits +
         DICEWAREPOS++
+        NTMPL--
     } else {
         RANDARR[1] = extract(64)                // 6 bits =
         choice = RANDARR[0] << 6 | RANDARR[1]   // 13 bits =
