@@ -12,7 +12,6 @@
             textarea {
                 font-family: monospace;
                 height: 200px;
-                resize: none;
             }
         </style>
     </head>
@@ -27,17 +26,19 @@
                 <p><strong>Caution: </strong>Do not hold down a single key for a long time and rely on your computer's "auto repeat" feature to generate the characters. This will not produce enough randomness for good security.</p>
             </div>
             <div class="row col-6"> <!-- Select and textarea -->
-                <select class="form-select" id="template">
-                    <option selected>DD DD DD DD DD DD</option>
-                    <option>SSSSS SSSSS SSSSS SSSSS SSSSS</option>
-                    <option>MMMMMMMMMMMM</option>
-                    <option>CCCCC CCCCC CCCCC</option>
-                    <option>LLLLL LLLLL LLLLL</option>
-                    <option>HHHH HHHH HHHH HHHH HHHH HHHH HHHH HHHH</option>
-                    <option>66666 66666 66666 66666 66666 66666</option>
-                    <option>99999 99999 99999 99999 99999 99999 99999 99999</option>
-                    <option>AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA</option>
-                </select>
+                <div class="panel-body">
+                    <select class="form-select" id="template">
+                        <option selected>DD DD DD DD DD DD</option>
+                        <option>SSSSS SSSSS SSSSS SSSSS SSSSS</option>
+                        <option>MMMMMMMMMMMM</option>
+                        <option>CCCCC CCCCC CCCCC</option>
+                        <option>LLLLL LLLLL LLLLL</option>
+                        <option>HHHH HHHH HHHH HHHH HHHH HHHH HHHH HHHH</option>
+                        <option>66666 66666 66666 66666 66666 66666</option>
+                        <option>99999 99999 99999 99999 99999 99999 99999 99999</option>
+                        <option>AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA</option>
+                    </select>
+                </div>
                 <div class="input-group">
                     <textarea readonly class="form-control" id="textarea"></textarea>
                 </div>
