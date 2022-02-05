@@ -6,8 +6,14 @@ const CHARSPEROUTPUT = 3    // number of characters input per output character
 let DICEWAREPOS = 1
 let CONSONANTNEXT = true
 
-// Spritz parameters
-const S = Uint8Array.from({length: 256}, (_, idx) => idx)
+// Setup Spritz state
+let S = []
+if ("spritzState" in localStorage) {
+    S = JSON.parse(localStorage.getItem("spritzState"))
+} else {
+    S = Array.from({length: 256}, (_, idx) => idx)
+}
+
 let I = J = K = Z = 0       // Spritz registers
 let W = 1                   // must be coprime to 256
 
@@ -281,6 +287,10 @@ function clearPasswords() {
     init()
 
     return
+}
+
+function saveEntropy() {
+    localStorage.setItem("spritzState", JSON.stringify(S))
 }
 
 init()
