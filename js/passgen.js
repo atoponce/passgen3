@@ -267,4 +267,18 @@ function addDiceware() {
     return
 }
 
+/**
+ * Clear the text area and reinitialize but carry over the existing Spritz state.
+ * @returns undefined
+ */
+function clearPasswords() {
+    TEXTAREA.value = ""
+    CHARCOUNT = 0
+    NTMPL = 0
+
+    init()
+
+    return
+}
+
 init()
