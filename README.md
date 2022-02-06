@@ -26,16 +26,15 @@ Spritz is an 8-bit CSPRNG and is initiated with values 0-255. When the page load
 
 ```javascript
 // use current time (milliseconds) as source randomness
-let now = Date.now()
-let ms = Math.floor((now/1e3 - Math.floor(now/1e3)) * 1e3)
-stir(ms)
+stir(Date.now() % 1000)
 ```
 
 A basic browser fingerprint is then generated and hashed with 128-bit SipHash:
 
 ```javascript
+const aacs = new Uint32Array([0x09F91102, 0x9D74E35B, 0xD84156C5, 0x635688C0])
 const fp = generateFingerprint()                        // generate basic browser fingerprint
-const fpHash = SipHashDouble.hash_hex("", fp)           // calculate 128-bit hash
+const fpHash = SipHashDouble.hash_hex(aacs, fp)         // calculate 128-bit hash
 ```
 
 The hexadecimal fingerprint is then read in 8-bit chunks, one at a time. The value of each chunk determines the number of mixing operations to Spritz. Each 8-bit chunk can produce up to 255 mixing operations. Because there are 16 chunks, there is a maximum of 4,080 mixing operations to the Spritz state.
@@ -51,33 +50,29 @@ This does take some time to execute and will be variable based on the hardware t
 
 ```javascript
 // use current time as source randomness again
-let now = Date.now()
-let ms = Math.floor((now/1e3 - Math.floor(now/1e3)) * 1e3)
-stir(ms)
+stir(Date.now % 1000)
 ```
 
 The goal here is to ensure that Spritz is uniquely shuffled before interacting with the web app. It shouldn't be trivial for other browsers, platforms, or users to duplicate that state. There are a maximum of 6,078 mixing operations, yielding about 12.569 bits of entropy for the first shuffled state.
 
 #### Keyboard Mixing
-Spritz requires four registers: `ii`, `jj`, `kk`, & `ww`. The `ii`, `jj`, & `kk` registered randomly walk around the 256 element array, but `ww` is a static register that can manipulate that random walk. In order to ensure that all 256 possible array elements are reached, `ww` must be relatively prime to 256. Because 2 is the only prime factor of 256, this means that `ww` can be any odd value, and "1" is commonly chosen.
+Spritz requires four registers: `I`, `J`, `K`, & `W`. The `I`, `J`, & `K` registered randomly walk around the 256 element array, but `W` is a static register that can manipulate that random walk. In order to ensure that all 256 possible array elements are reached, `W` must be relatively prime to 256. Because 2 is the only prime factor of 256, this means that `W` can be any odd value, and "1" is commonly chosen.
 
-In this implementation, the ASCII value of the pressed key is used for `ww`, with the modification that 97 is added any even-numbered ASCII code to force the result to be odd and to prevent any key value collisions with the other keys:
+In this implementation, the ASCII value of the pressed key is used for `W`, with the modification that 97 is added any even-numbered ASCII code to force the result to be odd and to prevent any key value collisions with the other keys:
 
 ```javascript
-if (key.key.charCodeAt(0) % 2 === 1) {  // use key code as the Spritz register "ww"
-    ww = key.key.charCodeAt(0)
+if (key.key.charCodeAt(0) % 2 === 1) {  // use key code as the Spritz register "W"
+    W = key.key.charCodeAt(0)
 } else {
-    ww = 97 + key.key.charCodeAt(0)     // make odd (must be coprime to 256) and don't collide with another key code
+    W = 97 + key.key.charCodeAt(0)     // make odd (must be coprime to 256) and don't collide with another key code
 }
 ```
 
-Once `ww` has been assigned, the Spritz state is then mixed the number of times determined by the time the key was pressed using the value of the key as `ww` during that mixing operation. The time the key is pressed is measured in milliseconds using `Date.now()` just like when the page was loaded. As such, there are a maximum of 999 + 999 = 1,998 Spritz mixing operations with the current value of `ww`:
+Once `W` has been assigned, the Spritz state is then mixed the number of times determined by the time the key was pressed using the value of the key as `W` during that mixing operation. The time the key is pressed is measured in milliseconds using `Date.now()` just like when the page was loaded. As such, there are a maximum of 999 + 999 = 1,998 Spritz mixing operations with the current value of `W`:
 
 ```javascript
 // use current time of key down/up (milliseconds) as source randomness
-let now = Date.now()
-let ms = Math.floor((now/1e3 - Math.floor(now/1e3)) * 1e3)
-stir(ms)
+stir(Date.now() % 1000)
 ```
 
  Both the key value and the time the key was pressed and released ensure that the Spritz state is 100% influenced by the user's typing variability.
@@ -88,8 +83,8 @@ Previous mixing operations up to this point are designed to avoid the potential 
 With that said, there is one more mixing operation done before the value is extracted from the RNG to build the password. A global `NMIXES = 10 * 256` variable is set forcing 10 passes through all 256 array elements. All the Spritz registers are reset to their default values. This is placed in the `extract(r)` function before outputing our random number:
 
 ```javascript
-ii = jj = kk = zz = 0
-ww = 1
+I = J = K = Z = 0
+W = 1
 
 stir(NMIXES)
 ```
@@ -102,7 +97,7 @@ let min = 256 % r
 
 do {
     q = stir(1)
-} while (q < min)   // avoid bias choice
+} while (q < min)   // avoid biased choice
 
 return (q % r)
 ```
