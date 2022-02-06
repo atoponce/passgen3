@@ -75,9 +75,9 @@ Once `W` has been assigned, the Spritz state is then mixed the number of times d
 stir(Date.now() % 1000)
 ```
 
- Both the key value and the time the key was pressed and released ensure that the Spritz state is 100% influenced by the user's typing variability.
+Both the key value and the time the key was pressed and released ensure that the Spritz state is 100% influenced by the user's typing variability.
 
- #### RNG Extraction
+#### RNG Extraction
 Previous mixing operations up to this point are designed to avoid the potential RC4-like early biases in the keystream while also putting Spritz into a unique state. Spritz may or may not be vulnerable to early keystream biases like RC4, but the operations do not get in the way of UX, so we're playing it safe instead of sorry.
 
 With that said, there is one more mixing operation done before the value is extracted from the RNG to build the password. A global `NMIXES = 10 * 256` variable is set forcing 10 passes through all 256 array elements. All the Spritz registers are reset to their default values. This is placed in the `extract(r)` function before outputing our random number:
