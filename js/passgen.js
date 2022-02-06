@@ -20,7 +20,7 @@ let W = 1                   // must be coprime to 256
 const TEMPLATE = document.getElementById("template")
 const TEXTAREA = document.getElementById("textarea")
 
-let SELTMPL = TEMPLATE.selectedIndex  // track which template we're using
+let SELTMPL = TEMPLATE.selectedIndex    // track which template we're using
 let NTMPL = 0                           // keeps track of where we are in the textarea
 let CHARCOUNT = 0                       // allows multiple input characters per output character
 let RANDARR = [0, 0]                    // array to hold random numbers for diceware
@@ -35,17 +35,17 @@ function init() {
     document.addEventListener("keydown", keyDown)
     document.addEventListener("keyup", keyUp)
 
+    const aacs = new Uint32Array([0x09F91102, 0x9D74E35B, 0xD84156C5, 0x635688C0])
     const fp = generateFingerprint()                        // generate basic browser fingerprint
-    const fpHash = SipHashDouble.hash_hex("", fp)           // calculate 128-bit hash
+    const fpHash = SipHashDouble.hash_hex(aacs, fp)         // calculate 128-bit hash
 
     for (let i = 0; i < fpHash.length; i += 2) {
-        const n = parseInt(fpHash.substring(i, i + 2), 16)    // Up to 4,080 mixes
+        const n = parseInt(fpHash.substring(i, i + 2), 16)  // Up to 4,080 mixes
         stir(n)
     }
 
     // use current time as source randomness again
     stir(Date.now() % 1000)
-
 }
 
 /**
@@ -61,7 +61,7 @@ function keyDown(key) {
     if (key.key.charCodeAt(0) % 2 === 1) {  // use key code as the Spritz register "W"
         W = key.key.charCodeAt(0)
     } else {
-        W = 97 + key.key.charCodeAt(0)     // make odd (must be coprime to 256) and don't collide with another key code
+        W = 97 + key.key.charCodeAt(0)      // make odd (must be coprime to 256) and don't collide with another key code
     }
 
     // use current time of key down (milliseconds) as source randomness
