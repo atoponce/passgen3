@@ -289,6 +289,9 @@ function clearPasswords() {
     return
 }
 
+/**
+ * Save the current Spritz state to disk.
+ */
 function saveEntropy() {
     localStorage.setItem("spritzState", JSON.stringify(S))
 }
