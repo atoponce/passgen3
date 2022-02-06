@@ -39,7 +39,7 @@
                         <option>AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA</option>
                     </select>
                     <div class="panel-body input-group-btn">
-                        <button class="btn btn-primary" onclick="saveEntropy()">Save Entropy</button>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#entropySaved" onclick="saveEntropy()">Save Entropy</button>
                         <button class="btn btn-danger" onclick="clearPasswords()">Clear Passwords</button>
                     </div>
                 </div>
@@ -47,6 +47,23 @@
                     <textarea readonly class="form-control" id="textarea"></textarea>
                 </div>
             </div>
+            <div class="modal fade" id="entropySaved" tabindex="-1" aria-labelledby="entropySavedLabel" aria-hidden="true"> <!-- Modal dialog -->
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="entropySavedLabel">Entropy saved</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>To remove, pull up the JavaScript console and type:</p>
+                            <p><tt>localStorage.removeItem('spritzState')</tt></p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>    
             <div class="row"> <!-- Templates and table -->
                 <h3>Templates</h3>
                 <p>The PassGen3 web app lets you select a pattern for the random strings it generates. Just pick a template from the selection box at the top of the text area. The following table describes each template and shows its appropriate entropy strength in bits.</p>
