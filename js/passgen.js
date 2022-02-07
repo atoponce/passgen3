@@ -3,7 +3,7 @@ const NMIXES = 10 * 256     // number of spritz characters discarded per output 
 const PRECHARS = 22         // number of characters required before any output
 const CHARSPEROUTPUT = 3    // number of characters input per output character
 
-let DICEWAREPOS = 1
+let DICEWARENEXT = false
 let CONSONANTNEXT = true
 
 // Setup Spritz state
@@ -23,14 +23,18 @@ const TEXTAREA = document.getElementById("textarea")
 let SELTMPL = TEMPLATE.selectedIndex    // track which template we're using
 let NTMPL = 0                           // keeps track of where we are in the textarea
 let CHARCOUNT = 0                       // allows multiple input characters per output character
-let RANDARR = [0, 0]                    // array to hold random numbers for diceware
+let DICEWARE = [0, 0]                   // array to hold random numbers for diceware
 
 /**
  * Initialize the Spritz state to a random state before keystrokes are entered.
  */
 function init() {
-    // use current time (milliseconds) as source randomness
-    stir(Date.now() % 1000)
+    // use current time (precision = milliseconds) as source randomness
+    let now = Date.now()
+    while (now > 1) {
+        stir(now % 1000)
+        now /= 1000
+    }
 
     document.addEventListener("keydown", keyDown)
     document.addEventListener("keyup", keyUp)
@@ -45,7 +49,11 @@ function init() {
     }
 
     // use current time as source randomness again
-    stir(Date.now() % 1000)
+    now = Date.now()
+    while (now > 1) {
+        stir(now % 1000)
+        now /= 1000
+    }
 }
 
 /**
@@ -260,16 +268,16 @@ function addDiceware() {
     let word
     let choice
 
-    if (DICEWAREPOS === 1) {
-        RANDARR[0] = extract(128)               // 7 bits +
-        DICEWAREPOS++
+    if (DICEWARENEXT === false) {
+        DICEWARE[0] = extract(128)              // 7 bits +
+        DICEWARENEXT = true
         NTMPL--
     } else {
-        RANDARR[1] = extract(64)                // 6 bits =
-        choice = RANDARR[0] << 6 | RANDARR[1]   // 13 bits =
+        DICEWARE[1] = extract(64)               // 6 bits =
+        choice = DICEWARE[0] << 6 | DICEWARE[1] // 13 bits =
         word = diceware8k[choice]               // 8192 possibilities
         TEXTAREA.value += word
-        DICEWAREPOS--
+        DICEWARENEXT = false
     }
 
     return
