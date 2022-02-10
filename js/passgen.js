@@ -62,7 +62,9 @@ function init() {
  * @returns true
  */
 function keyDown(key) {
-    if (key.key === " ") {
+    const ignoredKeys = [" ", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "PageDown", "PageUp", "Home", "End", "Tab]
+
+    if (ignoredKeys.includes(key.key)) {
         key.preventDefault()                // prevent space from scrolling the page
     }
 
