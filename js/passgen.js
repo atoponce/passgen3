@@ -62,10 +62,10 @@ function init() {
  * @returns true
  */
 function keyDown(key) {
-    const ignoredKeys = [" ", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "PageDown", "PageUp", "Home", "End", "Tab"]
+    const movementKeys = [" ", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "PageDown", "PageUp", "Home", "End", "Tab"]
 
-    if (ignoredKeys.includes(key.key)) {
-        key.preventDefault()                // prevent space from scrolling the page
+    if (movementKeys.includes(key.key)) {
+        key.preventDefault()                // prevent keys from scrolling the page
     }
 
     if (key.key.charCodeAt(0) % 2 === 1) {  // use key code as the Spritz register "W"
