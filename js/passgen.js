@@ -36,8 +36,8 @@ function init() {
         now /= 1000
     }
 
-    document.addEventListener("keydown", keyDown)
-    document.addEventListener("keyup", keyUp)
+    TEXTAREA.addEventListener("keydown", keyDown)
+    TEXTAREA.addEventListener("keyup", keyUp)
 
     const aacs = new Uint32Array([0x09F91102, 0x9D74E35B, 0xD84156C5, 0x635688C0])
     const fp = generateFingerprint()                        // generate basic browser fingerprint
