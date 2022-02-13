@@ -54,6 +54,8 @@ function init() {
         stir(now % 1000)
         now /= 1000
     }
+
+    randomScripps()
 }
 
 /**
@@ -305,6 +307,22 @@ function clearPasswords() {
  */
 function saveEntropy() {
     localStorage.setItem("spritzState", JSON.stringify(S))
+}
+
+function randomScripps() {
+    let rand
+    const min = 2 ** 32 % scripps.length
+    const words = []
+    
+    for (let i = 0; i < 26; i++) {
+        do {
+            rand = window.crypto.getRandomValues(new Uint32Array(1))[0]
+        } while (rand < min)
+
+        words.push(scripps[rand % scripps.length])
+    }
+
+    document.getElementById("scripps").innerText = words.join(" ")
 }
 
 init()
