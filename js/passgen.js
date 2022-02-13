@@ -155,7 +155,8 @@ function extract(r) {
     stir(NMIXES)        // we can afford a lot of mixing
 
     do {
-        q = stir(1)
+        // As much as we trust the Spritz algorithm, we still use the browser CSPRNG as a safety net.
+        q = stir(1) ^ window.crypto.getRandomValues(new Uint8Array(1))[0]
     } while (q < min)   // avoid biased choice
 
     return (q % r)
