@@ -76,6 +76,11 @@ function keyDown(key) {
         W = 97 + key.key.charCodeAt(0)      // make odd (must be coprime to 256) and don't collide with another key code
     }
 
+    if (key.repeat) {
+        key.preventDefault()                // prevent key repeat
+        return true
+    }
+
     // use current time of key down (milliseconds) as source randomness
     stir(Date.now() % 1000)
 
@@ -302,13 +307,12 @@ function clearPasswords() {
     return
 }
 
-/**
- * Save the current Spritz state to disk.
- */
+/** Save the current Spritz state to disk.  */
 function saveEntropy() {
     localStorage.setItem("spritzState", JSON.stringify(S))
 }
 
+/** Generate some random text for the user to type from the Scripps Spelling Bee word list. */
 function randomScripps() {
     let rand
     const min = 2 ** 32 % scripps.length
@@ -323,6 +327,9 @@ function randomScripps() {
     }
 
     document.getElementById("scripps").innerText = words.join(" ")
+}
+
+function preventKeyRepeat(e) {
 }
 
 init()
