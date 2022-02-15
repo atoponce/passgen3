@@ -19,7 +19,7 @@ let W = 1                   // must be coprime to 256
 
 const TEMPLATE = document.getElementById("template")
 const TEXTAREA = document.getElementById("textarea")
-TEXTAREA.value = "Type here to generate your passwords.\n"
+TEXTAREA.value = "Click here and start typing to generate passwords.\n"
 
 let SELTMPL = TEMPLATE.selectedIndex    // track which template we're using
 let NTMPL = 0                           // keeps track of where we are in the textarea
