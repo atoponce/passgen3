@@ -39,7 +39,7 @@
             </ul>
             <div class="tab-content" id="tabbedContent">
                 <div class="tab-pane fade show active" id="generate" role="tabpanel" aria-labelledby="generate-tab">
-                    <div class="row col"> <!-- Select and textarea -->
+                    <div class="row"> <!-- Select and textarea -->
                         <div class="panel-body input-group">
                             <select class="form-select" id="template">
                                 <option selected>D D D D D D</option>
@@ -59,6 +59,7 @@
                         </div>
                         <div class="input-group">
                             <textarea readonly class="form-control" id="textarea"></textarea>
+                            <textarea readonly class="form-control" id="scripps">Typing these 26 words will provide at least 256 bits entropy:</textarea>
                         </div>
                     </div>
                     <div class="modal fade" id="entropySaved" tabindex="-1" aria-labelledby="entropySavedLabel" aria-hidden="true"> <!-- Modal dialog -->
@@ -78,19 +79,16 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row col"> <!-- PassGen3 header -->
+                    <div class="row"> <!-- PassGen3 header -->
                         <p>This web app was inspired by <a href="https://theworld.com/~reinhold/passgen.html">the old Java applet version created by Arnold Reinhold</a>, the latest version of which was released in 2003. Because browsers no longer support Java applets, a JavaScript-based web app was created instead. This page is not (yet) mobile-friendly.</p>
                         <p>To use this generator, just click anywhere in the text area above to ensure it's focused and start typing. At first, dots will be displayed in the text window. After you have typed enough characters, your password will start to appear. Continue typing to complete the password. Keep typing to generate more passwords.</p>
                         <p>You can type in anything you like or just close your eyes and type characters at random. For extra credit, type in the serial numbers from a couple of dollar bills or other paper currency. The web app records the time in milliseconds when you press down and release each key and uses these time values, along with the key characters you type, as a source of randomness. There will normally be enough variability in your typing times to ensure that the characters that appear in the text window are highly random.</p>
-                        <p>If you need something to type, these 26 words provide at least 256 bits of entropy. They were chosen specifically to be difficult to type to increase the variability of your keystroke timings:</p>
                         <div class="panel-body">
-                            <p class="col font-monospace border border-secondary p-2" id="scripps"></p>
                         </div>
                     </div>
                 </div>
                 <div class="tab-pane fade" id="templates" role="tabpanel" aria-labelledby="template-tab">
                     <div class="row"> <!-- Templates and table -->
-                        <h3>Templates</h3>
                         <p>The PassGen3 web app lets you select a pattern for the random strings it generates. Just pick a template from the selection box at the top of the text area. The following table describes each template and shows its appropriate entropy strength in bits.</p>
                         <div class="panel-body">
                             <table class="table table-striped">
@@ -188,7 +186,6 @@
                 </div>
                 <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
                     <div class="row"> <!-- Security -->
-                        <h3>Security</h3>
                         <p>This web app is not the most secure way to make your password! Traces of the passwords you create can be left behind in your computer's memory, among other risks. Clicking "Save Entropy" will store the current RNG state to your local disk. Spritz is backtracking resistant, so an adversary should not be able to regenerate prior passwords from it, and they should not be able to predict your keystrokes, so future passwords should be improbable to generate also. But a leaked RNG state could present other risks. For maximum security we still recommend using ordinary dice to select a password or passphrase. See the <a href="http://world.std.com/~reinhold/diceware.html">Diceware page</a> for more details.</p>
                         <p>Also note that Microsoft's Windows and most Unix operating systems (at least the ones we've tested) force keyboard interrupts to occur at intervals separated on the order of 50 milliseconds. This effectively reduces the resolution of the JavaScript timer and, as a result, the amount of randomness accumulated for each keystroke. To compensate for this problem, PassGen3 requires 3 input characters for every output character and 6 input characters for every Diceware word.</p>
                         <p>None the less, using this web app to make up a password is far safer than picking your pet's name or your mother's birthday. Because JavaScript web apps download from an untrusted web server, there is risk of mischief. This web app does not make any network connections, so you can run it off-line after you download it and inspect the source code.</p>
@@ -198,7 +195,6 @@
                 </div>
                 <div class="tab-pane fade" id="technical" role="tabpanel" aria-labelledby="techincal-tab">
                     <div class="row"> <!-- Technical Details -->
-                        <h3>Technical Details</h3>
                         <p>PassGen3 uses a strong method for mixing randomness. The first version of PassGen used an entropy distiller with a 64-bit internal state, based on a linear congruential algorithm. PassGen2 used an entropy distiller based on the weak RC4 cipher. PassGen3 uses an entropy distiller based on the Spritz cipher.</p>
                         <p>As in Spritz, PassGen3 uses a 256-byte state vector "S" that is initialized to be a null permutation. As entropy is collected, "S" is permuted according to the Spritz key setup algorithm. The Spritz register "w" stores the ASCII value of each pressed and released keystroke during mixing. Even-numbered ASCII values are added to 97 to force them to be odd and prevent collisions with odd-numbered ASCII values ("w" must be coprime to 256 so "i" can cycle through all 256 values). As such, the Spritz state "S" is highly mixed by each keystroke. Before each password output character is emitted, the "i", "j", "k", "z", and "w" registers are reset and "S" is subjected to 10 full mixing passes. This is exactly equivalent to running the Spritz cipher generation algorithm on "S" and discarding the first 2,560 output characters.</p>
                         <p>When using an 8-bit value to select a character from an alphabet of length "n", there is a risk of bias if "n" does not evenly divide 256. To eliminate this, candidate cipher output bytes are discarded if they are outside of the range that is the largest multiple of "n" less than or equal to 256. The output is then mixed with the browser CSPRNG as a safety net, just in case the Spritz state or your typing can be predicted. Thus, the output is guaranteed to be secure, one way or the other.</p>
@@ -208,7 +204,6 @@
                 </div>
                 <div class="tab-pane fade" id="terms" role="tabpanel" aria-labelledby="terms-tab">
                     <div class="row"> <!-- Terms and Conditions -->
-                        <h3>Terms and Conditions</h3>
                         <p>PassGen, PassGen2 &copy; 1996, 2003 Arnold G. Reinhold, Cambridge, MA, USA</p>
                         <p>PassGen3 &copy; 2022 Aaron Toponce</p>
                         <p>PassGen and PassGen2 is free software; you can redistribute it and/or modify it under the terms of the <a href="https://www.gnu.org/licenses/licenses.html">GNU General Public License</a> as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.</p>

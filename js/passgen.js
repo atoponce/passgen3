@@ -19,6 +19,7 @@ let W = 1                   // must be coprime to 256
 
 const TEMPLATE = document.getElementById("template")
 const TEXTAREA = document.getElementById("textarea")
+TEXTAREA.value = "Type here to generate your passwords.\n"
 
 let SELTMPL = TEMPLATE.selectedIndex    // track which template we're using
 let NTMPL = 0                           // keeps track of where we are in the textarea
@@ -299,7 +300,7 @@ function addDiceware() {
  * @returns undefined
  */
 function clearPasswords() {
-    TEXTAREA.value = ""
+    TEXTAREA.value = "Type here to generate your passwords.\n"
     CHARCOUNT = 0
     NTMPL = 0
 
@@ -327,7 +328,8 @@ function randomScripps() {
         words.push(scripps[rand % scripps.length])
     }
 
-    document.getElementById("scripps").innerText = words.join(" ")
+    const scrippsText = "Typing these words provide at least 256 bits entropy:\n\n"
+    document.getElementById("scripps").value = scrippsText + words.join(" ")
 }
 
 function preventKeyRepeat(e) {
