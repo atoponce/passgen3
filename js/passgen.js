@@ -1,4 +1,6 @@
 // GLOBALS
+let DEBUG = false
+
 const NMIXES = 10 * 256     // number of spritz characters discarded per output character
 const PRECHARS = 22         // number of characters required before any output
 const CHARSPEROUTPUT = 3    // number of characters input per output character
@@ -78,7 +80,7 @@ function keyDown(key) {
         W = 97 + key.key.charCodeAt(0)      // make odd (must be coprime to 256) and don't collide with another key code
     }
 
-    if (key.repeat) {
+    if (key.repeat && DEBUG === false) {
         key.preventDefault()                // prevent key repeat
         return true
     }
@@ -202,13 +204,6 @@ function addChar() {
         ch = 32
     } else if (tmplChar === "A") {  // Random letter [[:upper:]]]
         ch = extract(26) + 65       // 65 = 'A'
-    } else if (tmplChar === "C") {  // Random alphanumeric [[:digit:][:upper:]]
-        ch = extract(36)
-        if (ch < 10) {
-            ch += 48                // 48 = '0'
-        } else {
-            ch += 55                // 55 + 10 = 'A'
-        }
     } else if (tmplChar === "D") {  // Random Diceware word
         addDiceware()
         return
