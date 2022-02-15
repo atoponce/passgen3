@@ -49,15 +49,14 @@
                     <div class="row"> <!-- Select and textarea -->
                         <div class="panel-body input-group">
                             <select class="form-select" id="template">
-                                <option selected>D D D D D D</option>
-                                <option>SSSSS SSSSS SSSSS SSSSS SSSSS</option>
-                                <option>MMMMMMMMMMMM</option>
-                                <option>CCCCC CCCCC CCCCC</option>
-                                <option>LLLLL LLLLL LLLLL</option>
-                                <option>HHHH HHHH HHHH HHHH HHHH HHHH HHHH HHHH</option>
-                                <option>66666 66666 66666 66666 66666 66666</option>
-                                <option>99999 99999 99999 99999 99999 99999 99999 99999</option>
-                                <option>AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA</option>
+                                <option value="D D D D D D D D D D" selected>Diceware</option>
+                                <option value="MMMMMMMMMMMMMMMMMMMM">ASCII</option>
+                                <option value="SSSSS SSSSS SSSSS SSSSS SSSSS SSSSS SSSSS SSSSS">Pseudowords</option>
+                                <option value="LLLLLLLLLLLLLLLLLLLLLL">Alphanumeric</option>
+                                <option value="AAAA AAAA AAAA AAAA AAAA AAAA AAAA">Alphabetic</option>
+                                <option value="HHHH HHHH HHHH HHHH HHHH HHHH HHHH HHHH">Hexadecimal</option>
+                                <option value="99999 99999 99999 99999 99999 99999 99999 99999">Decimal</option>
+                                <option value="66666 66666 66666 66666 66666 66666 66666 66666 66666 66666">Senary</option>
                             </select>
                             <div class="panel-body input-group-btn">
                                 <button class="btn btn-danger" onclick="clearPasswords()">Clear Passwords</button>
@@ -110,84 +109,63 @@
                                 </thead>
                                 <tbody id="table">
                                     <tr>
-                                        <td>D D D D D D</td>
-                                        <td>Six <a href="https://diceware.com">Diceware</a> words</td>
-                                        <td>78</td>
-                                        <td>plaza n8 rt tern rainy ghoul</td>
+                                        <td>Diceware</td>
+                                        <td>Ten <a href="https://diceware.com">Diceware</a> words<br/>(English 8k word list)</td>
+                                        <td>130</td>
+                                        <td>plaza n8 rt tern rainy ghoul dd vx paz masque</td>
                                         <td>High security master passphrase</td>
                                     </tr>
                                     <tr>
-                                        <td>SSSSS SSSSS SSSSS SSSSS SSSSS</td>
-                                        <td>Five pronounceable pseudowords</td>
-                                        <td>80</td>
-                                        <td>zujun safig losab nigoh komug</td>
+                                        <td>ASCII</td>
+                                        <td>20 graphical ASCII characters<br/>(no whitespace)</td>
+                                        <td>131</td>
+                                        <td>_0=yM2.AC)W[QLGF+R`I</td>
+                                        <td>High security password</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Pseudowords</td>
+                                        <td>Eight pronounceable <a href="https://arxiv.org/html/0901.4016">Proquints</a> pseudowords</td>
+                                        <td>128</td>
+                                        <td>zujun safig losab nigoh komug mugor rafon kikoj</td>
                                         <td>High security master passphrase</td>
                                     </tr>
                                     <tr>
-                                        <td>MMMMMMMMMMMM</td>
-                                        <td>Maximum strength -- all graphical characters</td>
-                                        <td>78.6</td>
-                                        <td>_0=yM2.AC)W[</td>
+                                        <td>Alphanumeric</td>
+                                        <td>22 alphanumeric characters<br/>(0-9, A-Z, a-z)</td>
+                                        <td>130</td>
+                                        <td>Xn0iJQDZYyati6PpfW0qAh</td>
                                         <td>High security password</td>
                                     </tr>
                                     <tr>
-                                        <td>CCCCC CCCCC CCCCC</td>
-                                        <td>Letters and numbers</td>
-                                        <td>77.5</td>
-                                        <td>0AF2X 95C0Q VWG29</td>
-                                        <td>High security password</td>
+                                        <td>Alphabetic</td>
+                                        <td>28 uppercase ASCII characters<br/>(A-Z)</td>
+                                        <td>131</td>
+                                        <td>NZIN NGVG QFUB RDDW ILOM IPIQ SLRE</td>
+                                        <td>One time pads</td>
                                     </tr>
                                     <tr>
-                                        <td>LLLLL LLLLL LLLLL</td>
-                                        <td>Crypto strength password</td>
-                                        <td>89.3</td>
-                                        <td>Xn0iJ QDZYy ati6P</td>
-                                        <td>High security password</td>
-                                    </tr>
-                                    <tr>
-                                        <td>HHHH HHHH HHHH HHHH HHHH HHHH HHHH HHHH</td>
-                                        <td>Random Hexadecimal</td>
+                                        <td>Hexadecimal</td>
+                                        <td>32 hexadecimal characters<br/>(0-9, A-F)</td>
                                         <td>128</td>
                                         <td>9940 0FF2 AFFD 3BF2 4E3C 407B 82A3 3CCD</td>
                                         <td>Symmetric cipher key, <a href="https://github.com/diracdeltas/niceware">Niceware</a></td>
                                     </tr>
                                     <tr>
-                                        <td>66666 66666 66666 66666 66666 66666</td>
-                                        <td>Random dice throws</td>
-                                        <td>2.5/ch</td>
-                                        <td>55636 41266 42426 24335 15236 33515</td>
-                                        <td><a href="https://diceware.com">Diceware</a>, board games</td>
-                                    </tr>
-                                    <tr>
-                                        <td>99999 99999 99999 99999 99999 99999 99999 99999</td>
-                                        <td>Random decimal digits</td>
-                                        <td>3.3/ch</td>
+                                        <td>Decimal</td>
+                                        <td>40 decimal digits<br/>(0-9)</td>
+                                        <td>132</td>
                                         <td>52515 86607 84774 55383 51452 60536 55237 70725</td>
                                         <td>Statistical use, one time pads</td>
                                     </tr>
                                     <tr>
-                                        <td>AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA</td>
-                                        <td>Random characters</td>
-                                        <td>4.7/ch</td>
-                                        <td>NZINN GVGQF UBRDD WILOM IPIQS LREOH NKIDH DEGJV</td>
-                                        <td>One time pads</td>
+                                        <td>Senary</td>
+                                        <td>50 base-6 digits<br/>(1-6)</td>
+                                        <td>129</td>
+                                        <td>55636 41266 42426 24335 15236 33515 46343 53154 36554 66212</td>
+                                        <td><a href="https://diceware.com">Diceware</a>, board games</td>
                                     </tr>
                                 </tbody>
                             </table>
-                        </div>
-                        <p>The characters in each pattern template determine what sort of random characters are presented:</p>
-                        <div class="panel-body">
-                            <dl class="row"> <!-- Description list -->
-                                <dt class="col-sm-1">D:</dt><dd class="col-sm-11">Diceware word, from the 8k word list</dd>
-                                <dt class="col-sm-1">S:</dt><dd class="col-sm-11">Syllable, alternating consonant and vowel</dd>
-                                <dt class="col-sm-1">M:</dt><dd class="col-sm-11">Graphical 7-bit ASCII character, 0-9, A-Z, a-z, !"#$%&amp;'()*+,-./:;&lt;=&gt;?[\]^_{|}~</dd>
-                                <dt class="col-sm-1">C:</dt><dd class="col-sm-11">Alphanumeric, 0-9, A-Z</dd>
-                                <dt class="col-sm-1">L:</dt><dd class="col-sm-11">Alphanumeric, upper and lower case, 0-9, A-Z, a-z</dd>
-                                <dt class="col-sm-1">H:</dt><dd class="col-sm-11">Hexadecimal (base 16) digit, 0-9 A-F</dd>
-                                <dt class="col-sm-1">6:</dt><dd class="col-sm-11">Dice throw, 1-6</dd>
-                                <dt class="col-sm-1">9:</dt><dd class="col-sm-11">Digit, 0-9</dd>
-                                <dt class="col-sm-1">A:</dt><dd class="col-sm-11">Letter, A-Z</dd>
-                            </dl>
                         </div>
                     </div>
                 </div>
