@@ -46,6 +46,7 @@ function init() {
     for (let i = 0; i < fpHash.length; i += 2) {
         const n = parseInt(fpHash.substring(i, i + 2), 16)  // Up to 4,080 mixes
         stir(n)
+        W += 2
     }
 
     // use current time as source randomness again
