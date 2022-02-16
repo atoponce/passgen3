@@ -114,7 +114,7 @@ function keyUp(key) {
 }
 
 /**
- * Maintain a pool of randomness using the Spritz algorithm.
+ * Maintain a pool of randomness using the Spritz PRG.
  * @param {number} x - The number of mixing operations
  * @returns {number} - A random number from Spritz
  */
@@ -166,8 +166,7 @@ function extract(r) {
     stir(NMIXES)        // we can afford a lot of mixing
 
     do {
-        // As much as we trust the Spritz algorithm, we still use the browser CSPRNG as a safety net.
-        q = stir(1) ^ window.crypto.getRandomValues(new Uint8Array(1))[0]
+        q = stir(1)
     } while (q < min)   // avoid biased choice
 
     return (q % r)
@@ -317,7 +316,7 @@ function randomScripps() {
     
     for (let i = 0; i < 26; i++) {
         do {
-            rand = window.crypto.getRandomValues(new Uint32Array(1))[0]
+            rand = extract(256) << 8 | extract(256)
         } while (rand < min)
 
         words.push(scripps[rand % scripps.length])
@@ -325,9 +324,6 @@ function randomScripps() {
 
     const scrippsText = "Typing these words provide at least 256 bits entropy:\n\n"
     document.getElementById("scripps").value = scrippsText + words.join(" ")
-}
-
-function preventKeyRepeat(e) {
 }
 
 init()
