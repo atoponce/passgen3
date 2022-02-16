@@ -5,7 +5,6 @@ const NMIXES = 10 * 256     // number of spritz characters discarded per output 
 const PRECHARS = 22         // number of characters required before any output
 const CHARSPEROUTPUT = 3    // number of characters input per output character
 
-let DICEWARENEXT = false
 let CONSONANTNEXT = true
 
 // Setup Spritz state
@@ -26,7 +25,6 @@ TEXTAREA.value = "Click here and start typing to generate passwords.\n"
 let SELTMPL = TEMPLATE.selectedIndex    // track which template we're using
 let NTMPL = 0                           // keeps track of where we are in the textarea
 let CHARCOUNT = 0                       // allows multiple input characters per output character
-let DICEWARE = [0, 0]                   // array to hold random numbers for diceware
 
 /**
  * Initialize the Spritz state to a random state before keystrokes are entered.
@@ -166,7 +164,7 @@ function extract(r) {
     stir(NMIXES)        // we can afford a lot of mixing
 
     do {
-        q = stir(1)
+        q = stir(1) << 8 | stir(1)
     } while (q < min)   // avoid biased choice
 
     return (q % r)
@@ -267,23 +265,27 @@ function addSyllable() {
 }
 
 /**
- * Build a Diweware passphrase. Requires 2 * CHARSPEROUTPUT per word.
+ * Build a Diweware passphrase.
+ * Requires 2 * CHARSPEROUTPUT per word (and CHARSPEROUTPUT per space).
  * @returns undefined
  */
 function addDiceware() {
-    let word
-    let choice
+    const rand = extract(8192)
 
-    if (DICEWARENEXT === false) {
-        DICEWARE[0] = extract(128)              // 7 bits +
-        DICEWARENEXT = true
-        NTMPL--
-    } else {
-        DICEWARE[1] = extract(64)               // 6 bits =
-        choice = DICEWARE[0] << 6 | DICEWARE[1] // 13 bits =
-        word = diceware8k[choice]               // 8192 possibilities
-        TEXTAREA.value += word
-        DICEWARENEXT = false
+    /**
+     * Because every other set size < 256 characters in this project, we only
+     * need 8 bits to build the password. However, there are 8,192 words in
+     * this Diceware list, which requries 13 bits. As such, it should take
+     * twice as much work to generate a random word.
+     *
+     * The template is "D D D D D D D D D D". Each "D" needs 6 characters of
+     * input before the NTMPL pointer is advanced to " ". If NTMPL is pointing
+     * at " ", only 3 characters are needed to advance it to the next "D".
+     */
+    if (CHARCOUNT % (CHARSPEROUTPUT * 3) === 0) {
+        TEXTAREA.value += diceware8k[rand]
+    } else if (CHARCOUNT % (CHARSPEROUTPUT * 3) === 6) {
+        NTMPL -= 1
     }
 
     return
@@ -311,15 +313,11 @@ function saveEntropy() {
 /** Generate some random text for the user to type from the Scripps Spelling Bee word list. */
 function randomScripps() {
     let rand
-    const min = 2 ** 32 % scripps.length
     const words = []
     
     for (let i = 0; i < 26; i++) {
-        do {
-            rand = extract(256) << 8 | extract(256)
-        } while (rand < min)
-
-        words.push(scripps[rand % scripps.length])
+        rand = extract(scripps.length)
+        words.push(scripps[rand])
     }
 
     const scrippsText = "Typing these words provide at least 256 bits entropy:\n\n"
