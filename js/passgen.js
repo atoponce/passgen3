@@ -189,6 +189,7 @@ function addChar() {
     if (SELTMPL != TEMPLATE.selectedIndex) {
         TEXTAREA.value += "\n"
         NTMPL = 0
+        CHARCOUNT = PRECHARS
         SELTMPL = TEMPLATE.selectedIndex
         return
     }
