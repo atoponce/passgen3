@@ -1,8 +1,7 @@
 // GLOBALS
-const PRECHARS = 22         // number of characters required before any output
-const CHARSPEROUTPUT = 3    // number of characters input per output character
-
-let CONSONANTNEXT = true
+const PRECHARS = 25         // number of characters required before any output
+const ENTROPYPERCHAR = 2    // amount of entropy per character
+const ENTROPY = new Uint32Array(1)  // The entropy bucket for tracking what entropy has been used and what is available
 
 if ("spritzState" in localStorage) {
     Spritz.state = JSON.parse(localStorage.spritzState)
@@ -91,7 +90,7 @@ function keyDown(key) {
         TEXTAREA.value += "."
     } else if (CHARCOUNT === PRECHARS) {
         TEXTAREA.value += ".\n"
-    } else if (CHARCOUNT % CHARSPEROUTPUT === 0) {
+    } else {
         addChar()
     }
 
@@ -140,9 +139,8 @@ function extract(r) {
  * @returns undefined
  */
 function addChar() {
-    let ch = 0
-    let tmplChar
-    let charIn
+    let data = ""
+    let tmplChar = ""
 
     if (NTMPL >= TEMPLATE.value.length) {
         TEXTAREA.value += "\n"
@@ -161,101 +159,89 @@ function addChar() {
         return
     }
 
+    if (ENTROPY[0] === 0) {
+        ENTROPY[0] = 2 ** ENTROPYPERCHAR - 1
+    } else {
+        ENTROPY[0] = ENTROPY[0] << ENTROPYPERCHAR | 2 ** ENTROPYPERCHAR - 1
+    }
+
     TEXTAREA.scrollTop = TEXTAREA.scrollHeight
     tmplChar = TEMPLATE.value[NTMPL]
-    NTMPL++
 
     if (tmplChar === " ") {
-        ch = 32
-    } else if (tmplChar === "A") {  // Random letter [[:upper:]]]
-        ch = extract(26) + 65       // 65 = 'A'
-    } else if (tmplChar === "D") {  // Random Diceware word
-        addDiceware()
-        return
-    } else if (tmplChar === "H") {  // Random hexadecimal [[:xdigit:]]
-        ch = extract(16)
-        if (ch < 10) {
-            ch += 48                // 48 = '0'
-        } else {
-            ch += 55                // 55 + 10 = 'A'
+        data = " "
+        NTMPL++
+    } else if (tmplChar === "D") {  // Diceware
+        if (ENTROPY[0] >= 2 ** 13 - 1) {
+            data = diceware8k[extract(8192)]
+            ENTROPY[0] >>= 13
+            NTMPL++
         }
-    } else if (tmplChar === "L") {  // Random alphanumeric upper or lower case [[:digit:][:upper:][:lower:]]
-        ch = extract(62)
-        if (ch < 10) {
-            ch += 48                // 48 = '0'
-        } else if (ch < 36) {
-            ch += 55                // 55 + 10 = 'A'
-        } else {
-            ch += 61                // 61 + 36 = 'a'
+    } else if (tmplChar === "M") {  // ASCII [[:graph:]]]
+        if (ENTROPY[0] >= 2 ** 7 - 1) {
+            data = String.fromCharCode(extract(94) + 33) // 33 = '!'
+            ENTROPY[0] >>= 7
+            NTMPL++
         }
-    } else if (tmplChar === "M") {  // Random 7-bit ASCII graphical [[:graph:]]]
-        ch = extract(94) + 33       // 33 = '!'
-    } else if (tmplChar === "S") {  // random syllable (see addSyllable below)
-        addSyllable()
-        return
-    } else if (tmplChar === "6") {  // Random dice throw [1-6]
-        ch = extract(6) + 49        // 49 = '1'
-    } else if (tmplChar === "9") {  // Random decimal digit [[:digit:]]
-        ch = extract(10) + 48       // 48 = '0'
-    } else {
-        return
+    } else if (tmplChar === "S") {  // Pseudowords
+        if (ENTROPY[0] >= 2 ** 16 - 1) {
+            const vowels = "aiou"
+            const consonants = "bdfghjklmnprstvz"
+            data  = consonants[extract(16)]
+            data += vowels[extract(4)]
+            data += consonants[extract(16)]
+            data += vowels[extract(4)]
+            data += consonants[extract(16)]
+            ENTROPY[0] >>= 16
+            NTMPL++
+        }
+    } else if (tmplChar === "L") {  // Alphanumeric [[:digit:][:upper:][:lower:]]
+        if (ENTROPY[0] >= 2 ** 6 - 1) {
+            let rand = extract(62)
+            if (rand < 10) {
+                rand += 48                // 48 = '0'
+            } else if (rand < 36) {
+                rand += 55                // 55 + 10 = 'A'
+            } else {
+                rand += 61                // 61 + 36 = 'a'
+            }
+            data = String.fromCharCode(rand)
+            ENTROPY[0] >>= 6
+            NTMPL++
+        }
+    } else if (tmplChar === "A") {  // Alphabetic [[:upper:]]]
+        if (ENTROPY[0] >= 2 ** 5 - 1) {
+            data = String.fromCharCode(extract(26) + 65) // 65 = 'A'
+            ENTROPY[0] >>= 5
+            NTMPL++
+        }
+    } else if (tmplChar === "H") {  // Hexadecimal [[:xdigit:]]
+    if (ENTROPY[0] >= 2 ** 4 - 1) {
+        let rand = extract(16)
+        if (rand < 10) {
+            rand += 48                // 48 = '0'
+        } else {
+            rand += 55                // 55 + 10 = 'A'
+        }
+        data = String.fromCharCode(rand)
+        ENTROPY[0] >>= 4
+        NTMPL++
+        }
+    } else if (tmplChar === "9") {  // Decimal [[:digit:]]
+        if (ENTROPY[0] >= 2 ** 4 - 1) {
+            data = String.fromCharCode(extract(10) + 48) // 48 = '0'
+            ENTROPY[0] >>= 4
+            NTMPL++
+        }
+    } else if (tmplChar === "6") {  // Senary [1-6]
+        if (ENTROPY[0] >= 2 ** 3 - 1) {
+            data = String.fromCharCode(extract(6) + 48) // 48 = '0'
+            ENTROPY[0] >>= 3
+            NTMPL++
+        }
     }
 
-    charIn = String.fromCharCode(ch)
-    TEXTAREA.value += charIn
-    CONSONANTNEXT = true
-    ch = 0
-    charIn = null
-    return
-}
-
-/**
- * Build a pronounceable password alternating consonant and vowel.
- * @returns undefined
- */
-function addSyllable() {
-    let syl = ""
-    const vowels = "aiou"
-    const consonants = "bdfghjklmnprstvz"
-
-    if (CONSONANTNEXT) {
-        syl += consonants[extract(consonants.length)]
-        CONSONANTNEXT = false
-    } else {
-        syl += vowels[extract(vowels.length)]
-        CONSONANTNEXT = true
-    }
-
-    TEXTAREA.value += syl
-    syl = ""
-
-    return
-}
-
-/**
- * Build a Diweware passphrase.
- * Requires 2 * CHARSPEROUTPUT per word (and CHARSPEROUTPUT per space).
- * @returns undefined
- */
-function addDiceware() {
-    const rand = extract(8192)
-
-    /**
-     * Because every other set size < 256 characters in this project, we only
-     * need 8 bits to build the password. However, there are 8,192 words in
-     * this Diceware list, which requries 13 bits. As such, it should take
-     * twice as much work to generate a random word.
-     *
-     * The template is "D D D D D D D D D D". Each "D" needs 6 characters of
-     * input before the NTMPL pointer is advanced to " ". If NTMPL is pointing
-     * at " ", only 3 characters are needed to advance it to the next "D".
-     */
-    if (CHARCOUNT % (CHARSPEROUTPUT * 3) === 0) {
-        TEXTAREA.value += diceware8k[rand]
-    } else if (CHARCOUNT % (CHARSPEROUTPUT * 3) === 6) {
-        NTMPL -= 1
-    }
-
+    TEXTAREA.value += data
     return
 }
 
