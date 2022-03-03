@@ -1,24 +1,24 @@
 // GLOBALS
-const PRECHARS = 25         // number of characters required before any output
-const ENTROPYPERCHAR = 2    // amount of entropy per character
-const ENTROPY = new Uint32Array(1)  // The entropy bucket for tracking what entropy has been used and what is available
-
-if ("spritzState" in localStorage) {
-    Spritz.state = JSON.parse(localStorage.spritzState)
-}
-
+const PRECHARS = 25                     // number of characters required before any output
+const ENTROPYPERCHAR = 2                // amount of entropy per character
+const ENTROPY = new Uint32Array(1)      // The entropy bucket for tracking what entropy has been used and what is available
 const TEMPLATE = document.getElementById("template")
 const TEXTAREA = document.getElementById("textarea")
-TEXTAREA.value = "Click here and start typing to generate passwords.\n"
 
-let SELTMPL = TEMPLATE.selectedIndex    // track which template we're using
 let NTMPL = 0                           // keeps track of where we are in the textarea
 let CHARCOUNT = 0                       // allows multiple input characters per output character
+let SELTMPL = TEMPLATE.selectedIndex    // track which template we're using
+
+TEXTAREA.value = "Type here to generate your passwords.\n"
 
 /**
  * Initialize the Spritz state to a random state before keystrokes are entered.
  */
 function init() {
+    if ("spritzState" in localStorage) {
+        Spritz.state = JSON.parse(localStorage.spritzState)
+    }
+
     // use current time (precision = milliseconds) as source randomness
     const byteArr = []
     let now = Date.now()
@@ -33,7 +33,6 @@ function init() {
     const aacs = new Uint32Array([0x09F91102, 0x9D74E35B, 0xD84156C5, 0x635688C0])
     const fp = generateFingerprint()                        // generate basic browser fingerprint
     const fpHash = SipHashDouble.hash_hex(aacs, fp)         // calculate 128-bit hash
-    
 
     for (let i = 0; i < fpHash.length; i += 2) {
         let int = parseInt(fpHash.substring(i, i + 2), 16)
@@ -216,16 +215,16 @@ function addChar() {
             NTMPL++
         }
     } else if (tmplChar === "H") {  // Hexadecimal [[:xdigit:]]
-    if (ENTROPY[0] >= 2 ** 4 - 1) {
-        let rand = extract(16)
-        if (rand < 10) {
-            rand += 48                // 48 = '0'
-        } else {
-            rand += 55                // 55 + 10 = 'A'
-        }
-        data = String.fromCharCode(rand)
-        ENTROPY[0] >>= 4
-        NTMPL++
+        if (ENTROPY[0] >= 2 ** 4 - 1) {
+            let rand = extract(16)
+            if (rand < 10) {
+                rand += 48                // 48 = '0'
+            } else {
+                rand += 55                // 55 + 10 = 'A'
+            }
+            data = String.fromCharCode(rand)
+            ENTROPY[0] >>= 4
+            NTMPL++
         }
     } else if (tmplChar === "9") {  // Decimal [[:digit:]]
         if (ENTROPY[0] >= 2 ** 4 - 1) {
