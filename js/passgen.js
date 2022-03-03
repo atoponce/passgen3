@@ -1,22 +1,8 @@
 // GLOBALS
-let DEBUG = false
-
-const NMIXES = 10 * 256     // number of spritz characters discarded per output character
 const PRECHARS = 22         // number of characters required before any output
 const CHARSPEROUTPUT = 3    // number of characters input per output character
 
 let CONSONANTNEXT = true
-
-// Setup Spritz state
-let S = []
-if ("spritzState" in localStorage) {
-    S = JSON.parse(localStorage.getItem("spritzState"))
-} else {
-    S = Array.from({length: 256}, (_, idx) => idx)
-}
-
-let I = J = K = Z = 0       // Spritz registers
-let W = 1                   // must be coprime to 256
 
 const TEMPLATE = document.getElementById("template")
 const TEXTAREA = document.getElementById("textarea")
@@ -31,10 +17,11 @@ let CHARCOUNT = 0                       // allows multiple input characters per 
  */
 function init() {
     // use current time (precision = milliseconds) as source randomness
+    const byteArr = []
     let now = Date.now()
-    while (now > 1) {
-        stir(now % 1000)
-        now /= 1000
+    while (now > 0) {
+        byteArr.push(now % 256)
+        now = Math.floor(now / 256)
     }
 
     TEXTAREA.addEventListener("keydown", keyDown)
@@ -43,19 +30,22 @@ function init() {
     const aacs = new Uint32Array([0x09F91102, 0x9D74E35B, 0xD84156C5, 0x635688C0])
     const fp = generateFingerprint()                        // generate basic browser fingerprint
     const fpHash = SipHashDouble.hash_hex(aacs, fp)         // calculate 128-bit hash
+    
 
     for (let i = 0; i < fpHash.length; i += 2) {
-        const n = parseInt(fpHash.substring(i, i + 2), 16)  // Up to 4,080 mixes
-        stir(n)
-        W += 2
+        let int = parseInt(fpHash.substring(i, i + 2), 16)
+        byteArr.push(int)
     }
 
     // use current time as source randomness again
     now = Date.now()
-    while (now > 1) {
-        stir(now % 1000)
-        now /= 1000
+    while (now > 0) {
+        byteArr.push(now % 256)
+        now = Math.floor(now / 256)
     }
+
+    absorb(byteArr)
+    absorbStop()
 
     randomScripps()
 }
@@ -72,19 +62,24 @@ function keyDown(key) {
         key.preventDefault()                // prevent keys from scrolling the page
     }
 
-    if (key.key.charCodeAt(0) % 2 === 1) {  // use key code as the Spritz register "W"
-        W = key.key.charCodeAt(0)
-    } else {
-        W = 97 + key.key.charCodeAt(0)      // make odd (must be coprime to 256) and don't collide with another key code
-    }
+    absorb([key.key.charCodeAt(0)])
+    absorbStop()
 
-    if (key.repeat && DEBUG === false) {
+    if (key.repeat) {
         key.preventDefault()                // prevent key repeat
         return true
     }
 
     // use current time of key down (milliseconds) as source randomness
-    stir(Date.now() % 1000)
+    const byteArr = []
+    let now = Date.now()
+    while (now > 0) {
+        byteArr.push(now % 256)
+        now = Math.floor(now / 256)
+    }
+
+    absorb(byteArr)
+    absorbStop()
 
     CHARCOUNT++
 
@@ -106,48 +101,18 @@ function keyDown(key) {
  */
 function keyUp(key) {
     // use current time of key up (milliseconds) as source randomness
-    stir(Date.now() % 1000)
+    const byteArr = []
+
+    let now = Date.now()
+    while (now > 0) {
+        byteArr.push(now % 256)
+        now = Math.floor(now / 256)
+    }
+
+    absorb(byteArr)
+    absorbStop()
 
     return true
-}
-
-/**
- * Maintain a pool of randomness using the Spritz PRG.
- * @param {number} x - The number of mixing operations
- * @returns {number} - A random number from Spritz
- */
-function stir(x) {
-    /**
-     * Returns the sum modulo 256 of a and b
-     * @param {number} a
-     * @param {number} b
-     * @returns {number} - Sum of a and b
-     */
-    var _madd = function(a, b) {
-        return (a + b) % 256
-    }
-
-    /**
-     * Swap array elements a and b
-     * @param {Array} arr
-     * @param {number} a
-     * @param {number} b
-     */
-    var _swap = function(arr, a, b) {
-        [S[a], S[b]] = [S[b], S[a]]
-    }
-
-    for (let i = 0; i < x; i++) {
-        I = _madd(I, W)
-        J = _madd(K, S[_madd(J, S[I])])
-        K = _madd(K + I, S[J])
-
-        _swap(S, I, J)
-
-        Z = S[_madd(J, S[_madd(I, S[_madd(Z, K)])])]
-    }
-
-    return Z
 }
 
 /**
@@ -158,13 +123,9 @@ function stir(x) {
 function extract(r) {
     let q
     const min = 256 % r
-    I = J = K = Z = 0
-    W = 1
-
-    stir(NMIXES)        // we can afford a lot of mixing
 
     do {
-        q = stir(1) << 8 | stir(1)
+        q = squeeze(1) << 8 | squeeze(1)
     } while (q < min)   // avoid biased choice
 
     return (q % r)
@@ -310,7 +271,7 @@ function clearPasswords() {
 
 /** Save the current Spritz state to disk.  */
 function saveEntropy() {
-    localStorage.setItem("spritzState", JSON.stringify(S))
+    localStorage.setItem("spritzState", JSON.stringify(Spritz.state))
 }
 
 /** Generate some random text for the user to type from the Scripps Spelling Bee word list. */
