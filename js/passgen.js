@@ -27,7 +27,7 @@ function init() {
     }
 
     // use current time (precision = milliseconds) as source randomness
-    const byteArr = []
+    let byteArr = []
     let now = Date.now()
     while (now > 0) {
         byteArr.push(now % 256)
