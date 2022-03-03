@@ -15,6 +15,13 @@ TEXTAREA.value = "Type here to generate your passwords.\n"
  * Initialize the Spritz state to a random state before keystrokes are entered.
  */
 function init() {
+    const aacs = new Uint32Array([0x09F91102, 0x9D74E35B, 0xD84156C5, 0x635688C0])
+    const fp = generateFingerprint()                        // generate basic browser fingerprint
+    const fpHash = SipHashDouble.hash_hex(aacs, fp)         // calculate 128-bit hash
+
+    TEXTAREA.addEventListener("keydown", keyDown)
+    TEXTAREA.addEventListener("keyup", keyUp)
+
     if ("spritzState" in localStorage) {
         Spritz.state = JSON.parse(localStorage.spritzState)
     }
@@ -27,17 +34,18 @@ function init() {
         now = Math.floor(now / 256)
     }
 
-    TEXTAREA.addEventListener("keydown", keyDown)
-    TEXTAREA.addEventListener("keyup", keyUp)
-
-    const aacs = new Uint32Array([0x09F91102, 0x9D74E35B, 0xD84156C5, 0x635688C0])
-    const fp = generateFingerprint()                        // generate basic browser fingerprint
-    const fpHash = SipHashDouble.hash_hex(aacs, fp)         // calculate 128-bit hash
+    absorb(byteArr)
+    absorbStop()
+    byteArr = []
 
     for (let i = 0; i < fpHash.length; i += 2) {
         let int = parseInt(fpHash.substring(i, i + 2), 16)
         byteArr.push(int)
     }
+
+    absorb(byteArr)
+    absorbStop()
+    byteArr = []
 
     // use current time as source randomness again
     now = Date.now()
