@@ -234,7 +234,7 @@ function addChar() {
         }
     } else if (tmplChar === "6") {  // Senary [1-6]
         if (ENTROPY[0] >= 2 ** 3 - 1) {
-            data = String.fromCharCode(extract(6) + 48) // 48 = '0'
+            data = String.fromCharCode(extract(6) + 49) // 49 = '1'
             ENTROPY[0] >>= 3
             NTMPL++
         }
