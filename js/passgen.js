@@ -4,6 +4,10 @@ const CHARSPEROUTPUT = 3    // number of characters input per output character
 
 let CONSONANTNEXT = true
 
+if ("spritzState" in localStorage) {
+    Spritz.state = JSON.parse(localStorage.spritzState)
+}
+
 const TEMPLATE = document.getElementById("template")
 const TEXTAREA = document.getElementById("textarea")
 TEXTAREA.value = "Click here and start typing to generate passwords.\n"
