@@ -1,5 +1,5 @@
 // GLOBALS
-const PRECHARS = 25                     // number of characters required before any output
+const PRECHARS = 40                     // number of characters required before any output (80 bits)
 const ENTROPYPERCHAR = 2                // amount of entropy per character
 const ENTROPY = new Uint32Array(1)      // The entropy bucket for tracking what entropy has been used and what is available
 const TEMPLATE = document.getElementById("template")
@@ -27,15 +27,11 @@ function init() {
     }
 
     // use current time (precision = milliseconds) as source randomness
-    let byteArr = []
-    let now = Date.now()
-    while (now > 0) {
-        byteArr.push(now % 256)
-        now = Math.floor(now / 256)
-    }
+    let byteArr = timeToByteArray(Date.now())
 
     absorb(byteArr)
     absorbStop()
+
     byteArr = []
 
     for (let i = 0; i < fpHash.length; i += 2) {
@@ -45,14 +41,8 @@ function init() {
 
     absorb(byteArr)
     absorbStop()
-    byteArr = []
 
-    // use current time as source randomness again
-    now = Date.now()
-    while (now > 0) {
-        byteArr.push(now % 256)
-        now = Math.floor(now / 256)
-    }
+    byteArr = timeToByteArray(Date.now())
 
     absorb(byteArr)
     absorbStop()
@@ -81,12 +71,7 @@ function keyDown(key) {
     }
 
     // use current time of key down (milliseconds) as source randomness
-    const byteArr = []
-    let now = Date.now()
-    while (now > 0) {
-        byteArr.push(now % 256)
-        now = Math.floor(now / 256)
-    }
+    const byteArr = timeToByteArray(Date.now())
 
     absorb(byteArr)
     absorbStop()
@@ -111,18 +96,28 @@ function keyDown(key) {
  */
 function keyUp(key) {
     // use current time of key up (milliseconds) as source randomness
-    const byteArr = []
-
-    let now = Date.now()
-    while (now > 0) {
-        byteArr.push(now % 256)
-        now = Math.floor(now / 256)
-    }
+    const byteArr = timeToByteArray(Date.now())
 
     absorb(byteArr)
     absorbStop()
 
     return true
+}
+
+/**
+ * Convert a time in milliseconds to an 8-bit byte array.
+ * @param {number} time - The time in milliseconds
+ * @returns {Array} - An array of bytes representing the time
+ */
+function timeToByteArray(time) {
+    const byteArr = []
+
+    while (time > 0) {
+        byteArr.push(time % 256)
+        time = Math.floor(time / 256)
+    }
+
+    return byteArr.reverse()  // big-endian
 }
 
 /**
@@ -281,7 +276,7 @@ function randomScripps() {
         words.push(scripps[rand])
     }
 
-    const scrippsText = "Typing these words provide at least 256 bits entropy:\n\n"
+    const scrippsText = "Typing these words guarantee 256 bits security:\n\n"
     document.getElementById("scripps").value = scrippsText + words.join(" ")
 }
 
