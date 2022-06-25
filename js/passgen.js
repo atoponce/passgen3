@@ -1,5 +1,5 @@
 // GLOBALS
-const PRECHARS = 40                     // number of characters required before any output (80 bits)
+const PRECHARS = 64                     // number of characters required before any output (80 bits)
 const ENTROPYPERCHAR = 2                // amount of entropy per character
 const ENTROPY = new Uint32Array(1)      // The entropy bucket for tracking what entropy has been used and what is available
 const TEMPLATE = document.getElementById("template")
