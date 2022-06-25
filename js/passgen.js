@@ -254,10 +254,10 @@ function addChar() {
 function clearPasswords() {
     TEXTAREA.value = "Type here to generate your passwords.\n"
 
-    if (CHARCOUNT < 40) {
+    if (CHARCOUNT < PRECHARS) {
         TEXTAREA.value += ".".repeat(CHARCOUNT)
     } else {
-        TEXTAREA.value += ".".repeat(40) + "\n"
+        TEXTAREA.value += ".".repeat(PRECHARS) + "\n"
     }
 
     NTMPL = 0
