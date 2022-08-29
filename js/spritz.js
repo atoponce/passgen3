@@ -23,8 +23,8 @@ function absorb(data) {
 }
 
 function absorbByte(byte) {
-    absorbNibble(byte & 0x0f)
-    absorbNibble(byte & 0xf0)
+    absorbNibble(byte & 0xf)
+    absorbNibble(byte >> 4)
 }
 
 function absorbNibble(nibble) {
