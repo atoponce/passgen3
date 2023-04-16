@@ -13,7 +13,7 @@ function _swap(arr, x, y) {
 }
 
 function _add(x, y) {
-    return (x + y) % 256
+    return (x + y) & 0xff
 }
 
 function absorb(data) {
