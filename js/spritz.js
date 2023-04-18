@@ -70,7 +70,7 @@ function whip(r) {
 
     do {
         Spritz.w += 1
-    } while (_gcd(Spritz.w, N) != 1)
+    } while (_gcd(Spritz.w, N) !== 1)
 }
 
 function crush() {
