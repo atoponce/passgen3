@@ -38,7 +38,7 @@ function absorbNibble(nibble) {
 }
 
 function absorbStop() {
-    if (Spritz.a[0] >= 128) {
+    if (Spritz.a >= 128) {
         shuffle()
     }
 
