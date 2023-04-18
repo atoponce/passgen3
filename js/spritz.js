@@ -1,3 +1,4 @@
+let N = 256
 let Spritz = {
     i: 0,
     j: 0,
@@ -5,7 +6,7 @@ let Spritz = {
     a: 0,
     w: 1,
     z: 0,
-    state: Array.from(Array(256), (_, i) => i)
+    state: Array.from(Array(N), (_, i) => i)
 }
 
 function _swap(arr, x, y) {
@@ -16,6 +17,14 @@ function _add(x, y) {
     return (x + y) & 0xff
 }
 
+function _gcd(x, y) {
+    if (!y) {
+        return x
+    }
+
+    return _gcd(y, x % y)
+}
+
 function absorb(data) {
     for (let byte = 0; byte < data.length; byte++) {
         absorbByte(data[byte])
@@ -23,22 +32,22 @@ function absorb(data) {
 }
 
 function absorbByte(byte) {
-    absorbNibble(byte & 0xf)
-    absorbNibble(byte >> 4)
+    absorbNibble(byte & 0xf) // low
+    absorbNibble(byte >> 4)  // high
 }
 
 function absorbNibble(nibble) {
-    if (Spritz.a >= 128) {
+    if (Spritz.a >= N / 2) {
         shuffle()
     }
 
-    _swap(Spritz.state, Spritz.a, _add(128, nibble))
+    _swap(Spritz.state, Spritz.a, _add(N / 2, nibble))
 
     Spritz.a += 1
 }
 
 function absorbStop() {
-    if (Spritz.a >= 128) {
+    if (Spritz.a >= N / 2) {
         shuffle()
     }
 
@@ -46,24 +55,26 @@ function absorbStop() {
 }
 
 function shuffle() {
-    whip()
+    whip(2 * N)
     crush()
-    whip()
+    whip(2 * N)
     crush()
-    whip()
+    whip(2 * N)
     Spritz.a = 0
 }
 
-function whip() {
-    for (let i = 0; i < 512; i++) {
+function whip(r) {
+    for (let i = 0; i < r; i++) {
         update()
     }
 
-    Spritz.w = _add(Spritz.w, 2)
+    do {
+        Spritz.w += 1
+    } while (_gcd(Spritz.w, N) != 1)
 }
 
 function crush() {
-    for (let v = 0; v < 128; v++) {
+    for (let v = 0; v < N / 2; v++) {
         if (Spritz.state[v] > Spritz.state[255 - v]) {
             _swap(Spritz.state, v, 255 - v)
         }
