@@ -1,73 +1,67 @@
+/**
+ * Basic generation of a unique browser fingerprint for premuting Spritz.
+ * The goal is to be unique enough from other users. While there are better
+ * fingerprinting tools out there, this should be "good enough" for password
+ * generation. However, I'm open to improvements without getting too complex.
+ * @returns {string} - A long text string of the data discovered.
+ */
 function generateFingerprint() {
     const fingerprint = []
 
-    // screen stuff
-    fingerprint.push(window.screen.height)
-    fingerprint.push(window.screen.width)
-    fingerprint.push(window.screen.availHeight)
-    fingerprint.push(window.screen.availWidth)
+    // User agent
+    fingerprint.push(window.navigator.userAgent)
 
-    // storage stuff
+    // Screen
+    fingerprint.push(window.screen.availWidth + "×" + window.screen.availHeight)
+    fingerprint.push(window.screen.width + "×" + window.screen.height)
+
+    // Plugins
+    for (let i = 0; i < window.navigator.plugins.length; i++) {
+        fingerprint.push(window.navigator.plugins[i].name)
+    }
+
+    // Cookies
     if (window.navigator.cookieEnabled) {
         fingerprint.push(window.navigator.cookieEnabled)
     } else {
-        document.cookie = 'fp'
-        fingerprint.push(document.cookie.indexOf('fp') != -1)
+        document.cookie = "fp"
+        fingerprint.push(document.cookie.indexOf("fp") != -1)
     }
 
-    if (window.localStorage) {
-        for (let i = 0; i < window.localStorage.length; i++) {
-            fingerprint.push(window.localStorage.key(i))
-            fingerprint.push(window.localStorage.getItem(window.localStorage.key(i)))
-        }
+    // localStorage
+    for (let i = 0; i < window.localStorage.length; i++) {
+        fingerprint.push(window.localStorage.key(i))
+        fingerprint.push(window.localStorage.getItem(window.localStorage.key(i)))
     }
 
-    if (window.sessionStorage) {
-        for (let i = 0; i < window.sessionStorage.length; i++) {
-            fingerprint.push(window.sessionStorage.key(i))
-            fingerprint.push(window.sessionStorage.getItem(window.sessionStorage.key(i)))
-        }
+    // sessionStorage
+    for (let i = 0; i < window.sessionStorage.length; i++) {
+        fingerprint.push(window.sessionStorage.key(i))
+        fingerprint.push(window.sessionStorage.getItem(window.sessionStorage.key(i)))
     }
 
-    // date time stuff
+    // Time zone
     const date = new Date()
-    date.setTime(0)
-    fingerprint.push(date.toLocaleString())
+    const offset = date.getTimezoneOffset() / 60
+    const name = date.toLocaleDateString(undefined, {day: '2-digit', timeZoneName: 'long'}).substring(4)
 
-    // language stuff
-    fingerprint.push(window.navigator.language)
-    fingerprint.push(window.navigator.languages)
-
-    // hardware stuff
-    fingerprint.push(window.navigator.hardwareConcurrency)  // not IE, Safari 10.1-11, iOS Safari 10.3-11
-    fingerprint.push(window.navigator.deviceMemory)         // not Firefox, IE, Safari
-    fingerprint.push(window.navigator.userAgent)
-
-    // plugin stuff
-    if (window.navigator.plugins) {                         // deprecated, may not be able to enumerate
-        for (let i = 0; i < window.navigator.plugins.length; i++) {
-            const plugin = window.navigator.plugins[i]
-            const mimetype = plugin[0]
-
-            if (plugin) {
-                fingerprint.push([i + ': ' + plugin.name, plugin.filename, plugin.description, mimetype.type, mimetype.suffixes].join(', '))
-            }
-        }
+    if (offset > 0) {
+        fingerprint.push("GMT-" + ("0" + offset).slice(-2) + "/" + name)
+    } else {
+        fingerprint.push("GMT+" + ("0" + offset).slice(-2) + "/" + name)
     }
 
-    // canvas stuff
-    const glCanvas = document.createElement("canvas")
-    const gl = glCanvas.getContext("webgl") || glCanvas.getContext("experimental-webgl")
+    // Language
+    fingerprint.push(window.navigator.language)
 
-    fingerprint.push(gl.getParameter(gl.VERSION))
-    fingerprint.push(gl.getParameter(gl.SHADING_LANGUAGE_VERSION))
-    fingerprint.push(gl.getParameter(gl.VENDOR))
-    fingerprint.push(gl.getParameter(gl.RENDERER))
-    fingerprint.push(gl.getSupportedExtensions().join())
+    // Mime types
+    for (let i = 0; i < window.navigator.mimeTypes.length; i++) {
+        fingerprint.push(window.navigator.mimeTypes[i].description)
+    }
 
-    // https://www.browserleaks.com/canvas#how-does-it-work
-    const canvas2D = document.createElement("canvas")
-    const ctx = canvas2D.getContext("2d")
+    // Canvas
+    const canvas = document.createElement("canvas")
+    const ctx = canvas.getContext("2d")
     const txt = "https://github.com/atoponce/passgen3"
 
     ctx.textBaseline = "top"
@@ -79,7 +73,8 @@ function generateFingerprint() {
     ctx.fillText(txt, 2, 15)
     ctx.fillStyle = "rgba(102, 204, 0, 0.7)"
     ctx.fillText(txt, 4, 17)
-    fingerprint.push(canvas2D.toDataURL())
 
-    return fingerprint.join()
+    fingerprint.push(canvas.toDataURL())
+
+    return fingerprint.join("|")
 }
