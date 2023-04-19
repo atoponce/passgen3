@@ -1,8 +1,9 @@
 // Only ASCII from "THREE BEE". https://spellingbee.com/sites/default/files/inline-files/Words_of_the_Champions_Printable_FINAL.pdf
-
 const tmp = []
 const scripps = []
 
+// Compressed word list.
+// Words are broken down by length. The index value defines the word length.
 tmp[4]="agueankhGizaikatkepioyezrouxwoad"
 tmp[5]="aioliargotbialybindibrujabrumebuffacabalcozendholedivanennuiFicusfilarfjeldFoleygazozgolemguleshaorihilumhokumjabotkanjikentekrewekugelkurtalatkelefseloessloupemeleemorelmuftinissenitidnivalpalsypekoepikasPonzipranaqueueSahelseineSinaisylphsynodtazzatenonthecatoquetulsiumamivireoxylylyulohZannizazen"
 tmp[6]="agalmaahimsaajimezApolloaporiaatlatlauteurbantambathosbetonybeurrebiremebolideboudinbrevetbuccalbulgurcanardcenotechiclecoltancygnetdamsondenguedesmandiktatdirndlduelloencinaexamenexsectfacilefarinafixityfrazilfrisonfunorigagakugalootgambolgannetGeigerglacisgnomongoannagoogolgorgongrisongyttjahalluxhangulhaupiaheliumhespedhinokihuipilhymnalhyssopibidemimaretimmureimpugnjacanajicamajoropojudokakakapokanbankichelkipukakoboldlaulauleveeslinnetmesialmilieumizunamoietyNereidniveaunonageoeuvreogivalooliteoppugnormoluotioseoxalispatoisphloempillorpistouptosisputschquokkaraninerealiaregnalrenvoireseaurhytonrococorubatoruellerugosesakurasambalsaugerSbrinzsecantseichesenilesenryusolacesulcussyzygytamariTeflontiffintikkuntitiantmesistowheeullageustionvisitewahinewakamezocalozydeco"
@@ -17,6 +18,7 @@ tmp[14]="aerophilatelicarachnophagousglyceraldehydelatitudinarianproprioceptives
 tmp[15]="plenipotentiary"
 tmp[16]="incomprehensibleprestidigitationtrichotillomania"
 
+// Rebuild the word list from the index values.
 for (let i = 4; i < 17; i++) {
   for (let j = 0; j < tmp[i].length; j += i) {
     scripps.push(tmp[i].substr(j, i))
