@@ -6,7 +6,6 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>PassGen3: A Password Generator in JavaScript</title>
-        <script src="js/scripps.js"></script>
         <style>
             select {
                 margin-bottom: 10px;
@@ -226,11 +225,11 @@
                 </div>
             </div>
         </main>
-        <script src="js/bootstrap.bundle.min.js"></script>
-        <script src="js/diceware8k.js"></script>
-        <script src="js/fingerprint.js"></script>
-        <script src="js/siphash-double.js"></script>
-        <script src="js/spritz.js"></script>
-        <script src="js/passgen.js"></script>
+        <script src="js/bootstrap.bundle.min.js"></script>  <!-- Standard Bootstrap stuffs -->
+        <script src="js/diceware8k.js"></script>            <!-- For diceware passphrase generation (defult) -->
+        <script src="js/scripps.js"></script>               <!-- Something difficult for the user to type to generate good entropy -->
+        <script src="js/fingerprint.js"></script>           <!-- Simple browser fingerprint generator -->
+        <script src="js/spritz.js"></script>                <!-- The Spritz cipher -->
+        <script src="js/passgen.js"></script>               <!-- The core application functions -->
     </body>
 </html>
