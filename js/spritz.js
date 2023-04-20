@@ -83,11 +83,11 @@ function absorbByte(b) {
  * @param {number} x - An unsigned 4-bit integer.
  */
 function absorbNibble(x) {
-    if (Spritz.a >= Math.floor(N / 2)) {
+    if (Spritz.a >= N >> 1) {
         shuffle()
     }
 
-    _swap(Spritz.S, Spritz.a, _add(Math.floor(N / 2), x))
+    _swap(Spritz.S, Spritz.a, _add(N >> 1, x))
 
     Spritz.a += 1
 }
@@ -100,7 +100,7 @@ function absorbNibble(x) {
  * absorb(I) ensures this is not true.
  */
 function absorbStop() {
-    if (Spritz.a >= Math.floor(N / 2)) {
+    if (Spritz.a >= N >> 1) {
         shuffle()
     }
 
@@ -153,7 +153,7 @@ function whip(r) {
  * sorted into increasing order.
  */
 function crush() {
-    for (let v = 0; v < Math.floor(N / 2); v++) {
+    for (let v = 0; v < N >> 1; v++) {
         if (Spritz.S[v] > Spritz.S[255 - v]) {
             _swap(Spritz.S, v, 255 - v)
         }
