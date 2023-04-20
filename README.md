@@ -24,10 +24,10 @@ guaranteed across browsers due to Spectre vulnerabilities and anti-fingerprintin
 
 ### Every Mixing Event
 #### Page Load Mixing
-Passgen3 uses Spritz as an 8-bit CSPRNG and is initiated with values 0-255. When the page loads, a
-basic browser fingerprint is calculated by getting the user agent, screen sizes, list of plugins,
-if cookies are enabled, the current local and session storage data, time zone, language, mime types,
-and how the browser handles building a canvas:
+Passgen3 uses Spritz as an 8-bit (`N=256`) CSPRNG and is initiated with values 0-255. When the page
+loads, a basic browser fingerprint is calculated by getting the user agent, screen sizes, list of
+plugins, if cookies are enabled, the current local and session storage data, time zone, language,
+mime types, and how the browser handles building a canvas:
 
 ```javascript
 const fpBytes = []
