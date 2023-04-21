@@ -30,8 +30,9 @@ function init() {
     // Generate a unique browser fingerprint and convert to simple byte array.
     const fpBytes = []
     const fp = generateFingerprint()
+    const l = fp.length
     
-    for (let i = 0; i < fp.length; i++) {
+    for (let i = 0; i < l; i++) {
         fpBytes.push(fp.charCodeAt(i))
     }
 

@@ -85,11 +85,13 @@ function absorbByte(b) {
  * @param {number} x - An unsigned 4-bit integer.
  */
 function absorbNibble(x) {
-    if (Spritz.a >= N >> 1) {
+    const h = N >> 1
+
+    if (Spritz.a >= h) {
         shuffle()
     }
 
-    _swap(Spritz.S, Spritz.a, _add(N >> 1, x))
+    _swap(Spritz.S, Spritz.a, _add(h, x))
 
     Spritz.a += 1
 }
@@ -119,11 +121,14 @@ function absorbStop() {
  * inputs/outputs from each other.
  */
 function shuffle() {
-    whip(N << 1)
+    const d = N << 1
+
+    whip(d)
     crush()
-    whip(N << 1)
+    whip(d)
     crush()
-    whip(N << 1)
+    whip(d)
+
     Spritz.a = 0
 }
 
@@ -176,7 +181,7 @@ function squeeze(r) {
         shuffle()
     }
 
-    let p = []
+    const p = []
 
     for (let v = 0; v < r; v++) {
         p.push(drip())
