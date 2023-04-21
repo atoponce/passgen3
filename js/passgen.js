@@ -130,7 +130,7 @@ function timeToByteArray(time) {
         time = Math.floor(time / 256)
     }
 
-    return byteArr.reverse()  // big-endian
+    return byteArr
 }
 
 /**
