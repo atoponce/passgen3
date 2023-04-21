@@ -60,7 +60,9 @@ function _gcd(x, y) {
  * @param {Array} I - An array of unsigned 8-bit integers.
  */
 function absorb(I) {
-    for (let v = 0; v < I.length; v++) {
+    const l = I.length
+
+    for (let v = 0; v < l; v++) {
         absorbByte(I[v])
     }
 }
@@ -117,11 +119,11 @@ function absorbStop() {
  * inputs/outputs from each other.
  */
 function shuffle() {
-    whip(2 * N)
+    whip(N << 1)
     crush()
-    whip(2 * N)
+    whip(N << 1)
     crush()
-    whip(2 * N)
+    whip(N << 1)
     Spritz.a = 0
 }
 
@@ -153,7 +155,9 @@ function whip(r) {
  * sorted into increasing order.
  */
 function crush() {
-    for (let v = 0; v < N >> 1; v++) {
+    const h = N >> 1
+
+    for (let v = 0; v < h; v++) {
         if (Spritz.S[v] > Spritz.S[255 - v]) {
             _swap(Spritz.S, v, 255 - v)
         }
