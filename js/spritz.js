@@ -243,5 +243,9 @@ function output() {
         )]
     )]
 
+    // This countermeasure removes the bias in the Spritz keystream.
+    // See https://www.jstage.jst.go.jp/article/transfun/E100.A/6/E100.A_1296/_article
+    Spritz.z ^= Spritz.S[N - 1 - Spritz.i]
+
     return Spritz.z
 }
