@@ -53,7 +53,7 @@ class Spritz {
    * Take a variable-length input sequence and updates the Spritz state. Can be
    * called for additional input even after it has produced some output, since
    * absorb() merely updates the current state without re-initializing it. This
-   * corresponsd to "duplex mode" in sponge function terminology. An input "I" may
+   * corresponds to "duplex mode" in sponge function terminology. An input "I" may
    * be supplied in pieces, each of non-negative length, using absorb(x) on each
    * piece. It doesn't matter how the input is divided into pieces since
    * "absorb(x); absorb(y);" is equivalent to "absorb(xy)".
@@ -110,7 +110,7 @@ class Spritz {
   }
 
   /**
-   * Whips, crushes, whips, chushes, and then whips again. Each whip(r) randomizes
+   * Whips, crushes, whips, crushes, and then whips again. Each whip(r) randomizes
    * the state. Because crush() is called between each pair of calls to whip(r),
    * the effects of crush() are not easily determined by manipulating the input,
    * and any biases introduced by crush() are smoothed out before shuffle()
@@ -148,7 +148,7 @@ class Spritz {
   }
 
   /**
-   * Provides a noninvertible transformation from states to states. Intentionally
+   * Provides a non-invertible transformation from states to states. Intentionally
    * "loses information" about the current state. More precisely, it maps 2^(N/2)
    * states to one, since each 256/2 pairs of compared values in the state are
    * sorted into increasing order.
@@ -216,8 +216,8 @@ class Spritz {
   }
 
   /**
-   * Computes a syngle byte (N-value) to output, saves this value in register "z",
-   * and returns tihs value.
+   * Computes a single byte (N-value) to output, saves this value in register "z",
+   * and returns this value.
    * @returns {number} - An unsigned random integer.
    */
   output() {
@@ -229,7 +229,7 @@ class Spritz {
         )
       ]
 
-    // This countermeasure removes the bias in the Spritz keystream.
+    // This countermeasure removes the bias in the Spritz key stream.
     // See https://www.jstage.jst.go.jp/article/transfun/E100.A/6/E100.A_1296/_article
     this.#z ^= this.#S[255 - this.#i]
 
