@@ -132,8 +132,8 @@ function timeToByteArray(time) {
   const byteArr = []
 
   while (time > 0) {
-    byteArr.push(time % 256)
-    time = Math.floor(time / 256)
+    byteArr.push(time & 0xff)
+    time = Math.trunc(time / 256)
   }
 
   return byteArr
