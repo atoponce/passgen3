@@ -18,6 +18,26 @@ class Spritz {
     this.#z = 0
   }
 
+  /** Return the Spritz state. */
+  get state() {
+    return this.#S
+  }
+
+  /** Set the Spritz state. */
+  set state(s) {
+    if (
+      [...new Set(s)].length === 256 &&
+      s.filter(Number.isInteger).length === 256 &&
+      Math.max.apply(Math, s) === 255
+    ) {
+      this.#S = s
+    } else {
+      console.error(
+        "Invalid state. Must be array 256 unique integers of 0-255."
+      )
+    }
+  }
+
   /**
    * Swaps two elements in an array.
    * @param {Array} arr - An array of integer elements.
@@ -39,16 +59,6 @@ class Spritz {
     return (x + y) & 0xff
   }
 
-  /** Return the Spritz state. */
-  get state() {
-    return this.#S
-  }
-
-  /** Set the Spritz state. */
-  set state(s) {
-    this.#S = s
-  }
-
   /**
    * Take a variable-length input sequence and updates the Spritz state. Can be
    * called for additional input even after it has produced some output, since
@@ -63,7 +73,7 @@ class Spritz {
     const l = I.length
 
     for (let v = 0; v < l; v++) {
-      this.absorbByte(I[v])
+      this.#absorbByte(I[v])
     }
   }
 
@@ -73,9 +83,9 @@ class Spritz {
    * low-order first.
    * @param {number} b - An unsigned 8-bit integer.
    */
-  absorbByte(b) {
-    this.absorbNibble(b & 0xf) // low
-    this.absorbNibble(b >> 4) // high
+  #absorbByte(b) {
+    this.#absorbNibble(b & 0xf) // low
+    this.#absorbNibble(b >> 4) // high
   }
 
   /**
@@ -84,9 +94,9 @@ class Spritz {
    * the value of the supplied nibble.
    * @param {number} x - An unsigned 4-bit integer.
    */
-  absorbNibble(x) {
+  #absorbNibble(x) {
     if (this.#a >= 128) {
-      this.shuffle()
+      this.#shuffle()
     }
 
     this.#swap(this.#S, this.#a, this.#add(128, x))
@@ -103,7 +113,7 @@ class Spritz {
    */
   absorbStop() {
     if (this.#a >= 128) {
-      this.shuffle()
+      this.#shuffle()
     }
 
     this.#a += 1
@@ -118,12 +128,12 @@ class Spritz {
    * produce a strong isolation of shuffle() inputs/outputs and crush()
    * inputs/outputs from each other.
    */
-  shuffle() {
-    this.whip(512)
-    this.crush()
-    this.whip(512)
-    this.crush()
-    this.whip(512)
+  #shuffle() {
+    this.#whip(512)
+    this.#crush()
+    this.#whip(512)
+    this.#crush()
+    this.#whip(512)
 
     this.#a = 0
   }
@@ -139,9 +149,9 @@ class Spritz {
    * cycle between all values modulo 256.
    * @param {number} r - How many times to call update() without producing output.
    */
-  whip(r) {
+  #whip(r) {
     for (let v = 0; v < r; v++) {
-      this.update()
+      this.#update()
     }
 
     this.#w += 2
@@ -153,7 +163,7 @@ class Spritz {
    * states to one, since each 256/2 pairs of compared values in the state are
    * sorted into increasing order.
    */
-  crush() {
+  #crush() {
     for (let v = 0; v < 128; v++) {
       if (this.#S[v] > this.#S[255 - v]) {
         this.#swap(this.#S, v, 255 - v)
@@ -170,7 +180,7 @@ class Spritz {
    */
   squeeze(r) {
     if (this.#a > 0) {
-      this.shuffle()
+      this.#shuffle()
     }
 
     const p = []
@@ -193,12 +203,12 @@ class Spritz {
    */
   drip() {
     if (this.#a > 0) {
-      this.shuffle()
+      this.#shuffle()
     }
 
-    this.update()
+    this.#update()
 
-    return this.output()
+    return this.#output()
   }
 
   /**
@@ -207,7 +217,7 @@ class Spritz {
    * relatively prime to "N", the value of "i" cycles modulo 256 as repeated updates
    * are performed.
    */
-  update() {
+  #update() {
     this.#i = this.#add(this.#i, this.#w)
     this.#j = this.#add(this.#k, this.#S[this.#add(this.#j, this.#S[this.#i])])
     this.#k = this.#add(this.#i + this.#k, this.#S[this.#j])
@@ -220,7 +230,7 @@ class Spritz {
    * and returns this value.
    * @returns {number} - An unsigned random integer.
    */
-  output() {
+  #output() {
     this.#z =
       this.#S[
         this.#add(
