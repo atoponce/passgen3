@@ -207,21 +207,21 @@ function addChar() {
     NTMPL++
   } else if (tmplChar === "D") {
     // Diceware
-    if (ENTROPY[0] >= 2 ** 13 - 1) {
+    if (ENTROPY[0] >= 8191) { // 2 ** 13 - 1
       data = diceware8k[extract(8192)]
       ENTROPY[0] >>= 13
       NTMPL++
     }
   } else if (tmplChar === "M") {
     // ASCII [[:graph:]]]
-    if (ENTROPY[0] >= 2 ** 7 - 1) {
+    if (ENTROPY[0] >= 127) { // 2 ** 7 - 1
       data = String.fromCharCode(extract(94) + 33) // 33 = '!'
       ENTROPY[0] >>= 7
       NTMPL++
     }
   } else if (tmplChar === "S") {
     // Pseudowords
-    if (ENTROPY[0] >= 2 ** 16 - 1) {
+    if (ENTROPY[0] >= 65535) { // 2 ** 16 - 1
       const vowels = "aiou"
       const consonants = "bdfghjklmnprstvz"
       data = consonants[extract(16)]
@@ -234,7 +234,7 @@ function addChar() {
     }
   } else if (tmplChar === "L") {
     // Alphanumeric [[:digit:][:upper:][:lower:]]
-    if (ENTROPY[0] >= 2 ** 6 - 1) {
+    if (ENTROPY[0] >= 63) { // 2 ** 6 - 1
       let rand = extract(62)
       if (rand < 10) {
         rand += 48 // 48 = '0'
@@ -249,14 +249,14 @@ function addChar() {
     }
   } else if (tmplChar === "A") {
     // Alphabetic [[:upper:]]]
-    if (ENTROPY[0] >= 2 ** 5 - 1) {
+    if (ENTROPY[0] >= 31) { // 2 ** 5 - 1
       data = String.fromCharCode(extract(26) + 65) // 65 = 'A'
       ENTROPY[0] >>= 5
       NTMPL++
     }
   } else if (tmplChar === "H") {
     // Hexadecimal [[:xdigit:]]
-    if (ENTROPY[0] >= 2 ** 4 - 1) {
+    if (ENTROPY[0] >= 15) { // 2 ** 4 - 1
       let rand = extract(16)
       if (rand < 10) {
         rand += 48 // 48 = '0'
@@ -269,14 +269,14 @@ function addChar() {
     }
   } else if (tmplChar === "9") {
     // Decimal [[:digit:]]
-    if (ENTROPY[0] >= 2 ** 4 - 1) {
+    if (ENTROPY[0] >= 15) { // 2 ** 4 - 1
       data = String.fromCharCode(extract(10) + 48) // 48 = '0'
       ENTROPY[0] >>= 4
       NTMPL++
     }
   } else if (tmplChar === "6") {
     // Senary [1-6]
-    if (ENTROPY[0] >= 2 ** 3 - 1) {
+    if (ENTROPY[0] >= 7) { // 2 ** 3 - 1
       data = String.fromCharCode(extract(6) + 49) // 49 = '1'
       ENTROPY[0] >>= 3
       NTMPL++
