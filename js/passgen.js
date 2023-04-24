@@ -151,11 +151,12 @@ function timeToByteArray(time) {
  * @returns {number} - A number between [0, r-1]
  */
 function extract(r) {
-  let q
-  const min = 65792 % r // 256 ** 2 + 256
+  let a, q
+  const min = 65536 % r
 
   do {
-    q = SPRITZ.squeeze(1) ** 2 + SPRITZ.squeeze(1)
+    a = SPRITZ.squeeze(2)
+    q = a[0] << 8 | a[1]
   } while (q < min) // avoid biased choice
 
   return q % r
