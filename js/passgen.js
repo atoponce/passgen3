@@ -129,12 +129,18 @@ function keyUp(key) {
  * @returns {Array} - An array of bytes representing the time
  */
 function timeToByteArray(time) {
-  const byteArr = []
+  const high = Math.trunc(time / 0x100000000)
+  const low = time & 0xffffffff
 
-  while (time > 0) {
-    byteArr.push(time & 0xff)
-    time = Math.trunc(time / 256)
-  }
+  // time = Date.now() is <= 48-bits.
+  const byteArr = [
+    (high >> 8) & 0xff,
+    high & 0xff,
+    (low >> 24) & 0xff,
+    (low >> 16) & 0xff,
+    (low >> 8) & 0xff,
+    low & 0xff
+  ]
 
   return byteArr
 }
