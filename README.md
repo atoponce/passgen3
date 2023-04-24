@@ -74,14 +74,13 @@ squeeze out two integers from the state, uniformly combine them into a large-eno
 return that large number modulo the set size:
 
 ```javascript
-let q
-let min
-
-r <= N ? min = N % r : min = r % N
+let a, q
+const min = 65536 % r
 
 do {
-    q = squeeze(1) ** 2 + squeeze(1)
-} while (q < min)   // avoid biased choice
+    a = SPRITZ.squeeze(2)
+    q = a[0] << 8 | a[1]
+} while (q < min) // avoid biased choice
 
-return (q % r)
+return q % r
 ```
