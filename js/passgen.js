@@ -43,7 +43,6 @@ function init() {
   // We're only interested in permuting the Spritz state, not returning an
   // actual hash value. Thus we can skip steps 3 and 4.
   SPRITZ.absorb(fpBytes)
-  SPRITZ.absorbStop()
 
   // Generate some random but difficult-to-type and generally long text for
   // the user. From the Scripps Spelling Bee word list.
@@ -78,7 +77,6 @@ function keyDown(key) {
   }
 
   SPRITZ.absorb([key.key.charCodeAt(0)])
-  SPRITZ.absorbStop()
 
   if (key.repeat) {
     key.preventDefault() // prevent key repeat
@@ -89,7 +87,6 @@ function keyDown(key) {
   const byteArr = timeToByteArray(Date.now())
 
   SPRITZ.absorb(byteArr)
-  SPRITZ.absorbStop()
 
   CHARCOUNT++
 
@@ -118,7 +115,6 @@ function keyUp(key) {
   const byteArr = timeToByteArray(Date.now())
 
   SPRITZ.absorb(byteArr)
-  SPRITZ.absorbStop()
 
   return true
 }
