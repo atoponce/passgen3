@@ -24,6 +24,7 @@ function init() {
   if (window.localStorage.spritzSeed) {
     SPRITZ.absorb(JSON.parse(window.localStorage.spritzSeed))
     CHARCOUNT = 64
+    TEXTAREA.value = "Type here to generate your passwords.\n"
     TEXTAREA.value += ".".repeat(64) + "\n"
   }
 
