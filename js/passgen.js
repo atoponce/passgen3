@@ -21,8 +21,10 @@ function init() {
 
   // If the Spritz state is saved from the last session and N didn't change
   // size, load the state. Otherwise, initilaze Spritz with the new size of N.
-  if (window.localStorage.spritzState) {
-    SPRITZ.state = JSON.parse(window.localStorage.spritzState)
+  if (window.localStorage.spritzSeed) {
+    SPRITZ.absorb(JSON.parse(window.localStorage.spritzSeed))
+    CHARCOUNT = 64
+    TEXTAREA.value += ".".repeat(64) + "\n"
   }
 
   // Generate a unique browser fingerprint and convert to simple byte array.
@@ -83,12 +85,13 @@ function keyDown(key) {
     return true
   }
 
-  // use current time of key down (milliseconds) as source randomness
-  const byteArr = timeToByteArray(Date.now())
-
+  // use current time of key down (milliseconds) as a source of randomness
+  const byteArr = int64ToByteArray(Date.now())
   SPRITZ.absorb(byteArr)
 
+  // use character count as another source of randomness
   CHARCOUNT++
+  SPRITZ.absorb(int64ToByteArray(CHARCOUNT))
 
   if (CHARCOUNT < PRECHARS) {
     TEXTAREA.value += "."
@@ -111,8 +114,8 @@ function keyDown(key) {
  * @returns true
  */
 function keyUp(key) {
-  // use current time of key up (milliseconds) as source randomness
-  const byteArr = timeToByteArray(Date.now())
+  // use current time of key up (milliseconds) as a source of randomness
+  const byteArr = int64ToByteArray(Date.now())
 
   SPRITZ.absorb(byteArr)
 
@@ -120,16 +123,17 @@ function keyUp(key) {
 }
 
 /**
- * Convert a time in milliseconds to an 8-bit byte array.
- * @param {number} time - The time in milliseconds
- * @returns {Array} - An array of bytes representing the time
+ * Convert a 64-bit integer to an 8-bit byte array.
+ * @param {number} n - The 64-bit integer
+ * @returns {Array} - An array of bytes representing the integer
  */
-function timeToByteArray(time) {
-  const high = Math.trunc(time / 0x100000000)
-  const low = time & 0xffffffff
+function int64ToByteArray(n) {
+  const high = Math.trunc(n / 0x1_0000_0000)
+  const low = n & 0xffff_ffff
 
-  // time = Date.now() is <= 48-bits.
   const byteArr = [
+    (high >> 24) & 0xff,
+    (high >> 16) & 0xff,
     (high >> 8) & 0xff,
     high & 0xff,
     (low >> 24) & 0xff,
@@ -137,6 +141,10 @@ function timeToByteArray(time) {
     (low >> 8) & 0xff,
     low & 0xff
   ]
+
+  while (byteArr.indexOf(0) === 0) {
+    byteArr.shift()
+  }
 
   return byteArr
 }
@@ -305,7 +313,7 @@ function clearPasswords() {
 
 /** Save the current Spritz state to disk.  */
 function saveEntropy() {
-  localStorage.setItem("spritzState", JSON.stringify(SPRITZ.state))
+  localStorage.setItem("spritzSeed", JSON.stringify(SPRITZ.squeeze(32)))
 }
 
 /**
