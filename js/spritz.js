@@ -1,21 +1,21 @@
 class Spritz {
-  #S // Spritz state array.
+  #a // Counts how many nibbles have been absorbed.
   #i // Increases by w % 256 when drip() is called.
   #j // Changes pseudorandomly.
   #k // Changes pseudorandomly.
-  #a // Counts how many nibble have been absorbed.
   #w // Always relatively prime to 256, updated when whip(r) is called.
   #z // Records the last output byte produces.
+  #S // Spritz state array.
 
   /** Initialize Spritz to its standard initial state. Hard-coded to N=256. */
   constructor() {
-    this.#S = Array.from(Array(256), (_, v) => v)
+    this.#a = 0
     this.#i = 0
     this.#j = 0
     this.#k = 0
-    this.#a = 0
     this.#w = 1
     this.#z = 0
+    this.#S = Array.from(Array(256), (_, v) => v)
   }
 
   /** Return the Spritz state. */
@@ -154,7 +154,7 @@ class Spritz {
       this.#update()
     }
 
-    this.#w += 2
+    this.#w += 2 // Always odd, thus relatively prime to 256.
   }
 
   /**
