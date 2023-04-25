@@ -6,6 +6,7 @@
  * @returns {string} - A long text string of the data discovered.
  */
 function generateFingerprint() {
+  let len
   const fingerprint = []
 
   // User agent
@@ -16,7 +17,8 @@ function generateFingerprint() {
   fingerprint.push(window.screen.width + "×" + window.screen.height)
 
   // Plugins
-  for (let i = 0; i < window.navigator.plugins.length; i++) {
+  len = window.navigator.plugins.length
+  for (let i = 0; i < len; i++) {
     fingerprint.push(window.navigator.plugins[i].name)
   }
 
@@ -29,13 +31,15 @@ function generateFingerprint() {
   }
 
   // localStorage
-  for (let i = 0; i < window.localStorage.length; i++) {
+  len = window.localStorage.length
+  for (let i = 0; i < len; i++) {
     fingerprint.push(window.localStorage.key(i))
     fingerprint.push(window.localStorage.getItem(window.localStorage.key(i)))
   }
 
   // sessionStorage
-  for (let i = 0; i < window.sessionStorage.length; i++) {
+  len = window.sessionStorage.length
+  for (let i = 0; i < len; i++) {
     fingerprint.push(window.sessionStorage.key(i))
     fingerprint.push(
       window.sessionStorage.getItem(window.sessionStorage.key(i))
@@ -59,7 +63,8 @@ function generateFingerprint() {
   fingerprint.push(window.navigator.language)
 
   // Mime types
-  for (let i = 0; i < window.navigator.mimeTypes.length; i++) {
+  len = window.navigator.mimeTypes.length
+  for (let i = 0; i < len; i++) {
     fingerprint.push(window.navigator.mimeTypes[i].description)
   }
 
