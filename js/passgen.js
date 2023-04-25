@@ -10,22 +10,26 @@ let NTMPL = 0 // keeps track of where we are in the textarea
 let CHARCOUNT = 0 // allows multiple input characters per output character
 let SELTMPL = TEMPLATE.selectedIndex // track which template we're using
 
-TEXTAREA.value = "Type here to generate your passwords.\n"
-
 /**
  * Initialize the Spritz state to a random state before keystrokes are entered.
  */
 function init() {
+  NTMPL = 0
+  TEXTAREA.value = "Type here to generate your passwords.\n"
+
   TEXTAREA.addEventListener("keydown", keyDown)
   TEXTAREA.addEventListener("keyup", keyUp)
 
-  // If the Spritz state is saved from the last session and N didn't change
-  // size, load the state. Otherwise, initilaze Spritz with the new size of N.
+  // If a seed is saved from the last session size, absorb the seed and credit
+  // the user with 64 characters already typed.
   if (window.localStorage.spritzSeed) {
     SPRITZ.absorb(JSON.parse(window.localStorage.spritzSeed))
+    TEXTAREA.value += ".".repeat(PRECHARS) + "\n"
     CHARCOUNT = 64
-    TEXTAREA.value = "Type here to generate your passwords.\n"
-    TEXTAREA.value += ".".repeat(64) + "\n"
+  } else if (CHARCOUNT < PRECHARS) {
+    TEXTAREA.value += ".".repeat(CHARCOUNT)
+  } else {
+    TEXTAREA.value += ".".repeat(PRECHARS) + "\n"
   }
 
   // Generate a unique browser fingerprint and convert to simple byte array.
@@ -37,14 +41,7 @@ function init() {
     fpBytes.push(fp.charCodeAt(i))
   }
 
-  // Spritz is a capable hash function: hash(M, r) produces an r-byte hash of
-  // the input message (byte sequence) M defined as:
-  //      1. InitializeState()
-  //      2. absorb(M); absorbStop()
-  //      3. abosorb(r)
-  //      4. return squeeze(r)
-  // We're only interested in permuting the Spritz state, not returning an
-  // actual hash value. Thus we can skip steps 3 and 4.
+  // Absorb the browser fingerprint
   SPRITZ.absorb(fpBytes)
 
   // Generate some random but difficult-to-type and generally long text for
@@ -289,26 +286,6 @@ function addChar() {
   }
 
   TEXTAREA.value += data
-  return
-}
-
-/**
- * Clear the text area and reinitialize but carry over the Spritz state.
- * @returns undefined
- */
-function clearPasswords() {
-  TEXTAREA.value = "Type here to generate your passwords.\n"
-
-  if (CHARCOUNT < PRECHARS) {
-    TEXTAREA.value += ".".repeat(CHARCOUNT)
-  } else {
-    TEXTAREA.value += ".".repeat(PRECHARS) + "\n"
-  }
-
-  NTMPL = 0
-
-  init()
-
   return
 }
 
