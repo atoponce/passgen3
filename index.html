@@ -12,13 +12,13 @@
             }
             textarea {
                 font-family: monospace;
-                height: 200px;
+                height: 210px;
                 margin-bottom: 5px;
             }
             #textarea {
                 margin-right: 5px;
             }
-            #scripps {
+            #random {
                 margin-left: 5px;
             }
         </style>
@@ -64,7 +64,7 @@
                         </div>
                         <div class="input-group">
                             <textarea readonly class="form-control" id="textarea"></textarea>
-                            <textarea readonly class="form-control" id="scripps"></textarea>
+                            <textarea readonly class="form-control" id="random"></textarea>
                         </div>
                     </div>
                     <div class="modal fade" id="entropySaved" tabindex="-1" aria-labelledby="entropySavedLabel" aria-hidden="true"> <!-- Modal dialog -->
@@ -227,7 +227,7 @@
         </main>
         <script src="js/bootstrap.bundle.min.js"></script>  <!-- Standard Bootstrap stuffs -->
         <script src="js/diceware8k.js"></script>            <!-- For diceware passphrase generation (defult) -->
-        <script src="js/words.js"></script>                 <!-- Something difficult for the user to type to generate good entropy -->
+        <script src="js/obscureWords.js"></script>          <!-- Something difficult for the user to type to generate good entropy -->
         <script src="js/fingerprint.js"></script>           <!-- Simple browser fingerprint generator -->
         <script src="js/spritz.js"></script>                <!-- The Spritz cipher -->
         <script src="js/passgen.js"></script>               <!-- The core application functions -->
