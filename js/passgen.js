@@ -304,7 +304,7 @@ function randomScripps() {
   let rand
   const words = []
   const len = scripps.length
-  const req = Math.ceil(256 / Math.floor(Math.log2(len)))
+  const req = Math.ceil(256 / Math.log2(len))
 
   for (let i = 0; i < req; i++) {
     rand = extract(len)
