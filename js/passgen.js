@@ -46,7 +46,7 @@ function init() {
 
   // Generate some random but difficult-to-type and generally long text for
   // the user. From the Scripps Spelling Bee word list.
-  randomScripps()
+  randomWords()
 }
 
 /**
@@ -295,25 +295,28 @@ function saveEntropy() {
 }
 
 /**
- * Generate some random text for the user to type from the Scripps Spelling Bee
- * word list. The words are generally long and dificult to prounounce, which
- * should make them difficult to type as well. This improves entropy via
- * irregular key stroke timings and typing mistakes.
+ * Generate some random text for the user to type. The words are either obsure,
+ * long, or both. The are also dificult to prounounce, which should make them
+ * difficult to type. This improves entropy via irregular key stroke timings
+ * and typing mistakes.
  */
-function randomScripps() {
+function randomWords() {
   let rand
-  const words = []
-  const len = scripps.length
-  const req = Math.ceil(256 / Math.log2(len))
+  const toType = []
+  const words = [...new Set(Array.prototype.concat(obscure, diceware8k))]
+  const len = words.length // 16,384 unique entries
+
+  // Guaranteed 512 bits security, regardless of the bits per keystroke entropy
+  const req = Math.ceil(512 / Math.log2(len))
 
   for (let i = 0; i < req; i++) {
     rand = extract(len)
-    words.push(scripps[rand])
+    toType.push(words[rand])
   }
 
-  const scrippsText =
-    "Typing these random words guarantee 256-bits of security:\n\n"
-  document.getElementById("scripps").value = scrippsText + words.join(" ")
+  const randomText =
+    "Try typing these random words accurately to maximize entropy:\n\n"
+  document.getElementById("random").value = randomText + toType.join(" ")
 }
 
 init()
