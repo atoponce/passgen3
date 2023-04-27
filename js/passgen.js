@@ -312,7 +312,7 @@ function randomScripps() {
   }
 
   const scrippsText =
-    "Need something to type? These words provide 256-bits of entropy:\n\n"
+    "Typing these random words guarantee 256-bits of security:\n\n"
   document.getElementById("scripps").value = scrippsText + words.join(" ")
 }
 
