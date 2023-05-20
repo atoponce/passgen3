@@ -5,6 +5,8 @@ const SPRITZ = new Spritz() // Initialize the Spritz state
 const PRECHARS = 64 // number of characters required before any output (128 bits)
 const ENTROPY = new Uint32Array(1) // The entropy bucket for tracking what entropy has been used and what is available
 const TEXTAREA = document.getElementById("textarea")
+const TEMPLATE = document.getElementById("template")
+let SELTMPL = TEMPLATE.selectedIndex // track which template we're using
 
 let NTMPL = 0 // keeps track of where we are in the textarea
 let CHARCOUNT = 0 // allows multiple input characters per output character
@@ -175,25 +177,23 @@ function extract(r) {
  * @returns undefined
  */
 function addChar() {
-  const template = document.getElementById("template")
-  let seltmpl = template.selectedIndex // track which template we're using
   let data = ""
   let tmplChar = ""
 
-  if (NTMPL >= template.value.length) {
+
+  if (NTMPL >= TEMPLATE.value.length) {
     TEXTAREA.value += "\n"
     NTMPL = 0
-    CONSONANTNEXT = true
     return
   }
 
-  if (seltmpl != template.selectedIndex) {
+  if (SELTMPL != TEMPLATE.selectedIndex) {
     if (NTMPL != 0) {
       TEXTAREA.value += "\n"
     }
     NTMPL = 0
     CHARCOUNT = PRECHARS
-    seltmpl = template.selectedIndex
+    SELTMPL = TEMPLATE.selectedIndex
     return
   }
 
@@ -202,7 +202,7 @@ function addChar() {
 
   // Find our template to follow generating the password
   TEXTAREA.scrollTop = TEXTAREA.scrollHeight
-  tmplChar = template.value[NTMPL]
+  tmplChar = TEMPLATE.value[NTMPL]
 
   // Deduct entropy from the "entropy pool" as we build the password
   if (tmplChar === " ") {
