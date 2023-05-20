@@ -1,14 +1,13 @@
+"use strict"
+
 // GLOBALS
 const SPRITZ = new Spritz() // Initialize the Spritz state
-const PRECHARS = 64 // number of characters required before any output (80 bits)
-const ENTROPYPERCHAR = 2 // amount of entropy per character
+const PRECHARS = 64 // number of characters required before any output (128 bits)
 const ENTROPY = new Uint32Array(1) // The entropy bucket for tracking what entropy has been used and what is available
-const TEMPLATE = document.getElementById("template")
 const TEXTAREA = document.getElementById("textarea")
 
 let NTMPL = 0 // keeps track of where we are in the textarea
 let CHARCOUNT = 0 // allows multiple input characters per output character
-let SELTMPL = TEMPLATE.selectedIndex // track which template we're using
 
 /**
  * Initialize the Spritz state to a random state before keystrokes are entered.
@@ -176,32 +175,34 @@ function extract(r) {
  * @returns undefined
  */
 function addChar() {
+  const template = document.getElementById("template")
+  let seltmpl = template.selectedIndex // track which template we're using
   let data = ""
   let tmplChar = ""
 
-  if (NTMPL >= TEMPLATE.value.length) {
+  if (NTMPL >= template.value.length) {
     TEXTAREA.value += "\n"
     NTMPL = 0
     CONSONANTNEXT = true
     return
   }
 
-  if (SELTMPL != TEMPLATE.selectedIndex) {
+  if (seltmpl != template.selectedIndex) {
     if (NTMPL != 0) {
       TEXTAREA.value += "\n"
     }
     NTMPL = 0
     CHARCOUNT = PRECHARS
-    SELTMPL = TEMPLATE.selectedIndex
+    seltmpl = template.selectedIndex
     return
   }
 
   // Build up the "entropy pool"
-  ENTROPY[0] = (ENTROPY[0] << ENTROPYPERCHAR) | (2 ** ENTROPYPERCHAR - 1) // No parens, not a bug
+  ENTROPY[0] = (ENTROPY[0] << 2) | (2 ** 2 - 1) // No parens, not a bug
 
   // Find our template to follow generating the password
   TEXTAREA.scrollTop = TEXTAREA.scrollHeight
-  tmplChar = TEMPLATE.value[NTMPL]
+  tmplChar = template.value[NTMPL]
 
   // Deduct entropy from the "entropy pool" as we build the password
   if (tmplChar === " ") {
@@ -319,4 +320,113 @@ function randomWords() {
   document.getElementById("random").value = randomText + toType.join(" ")
 }
 
-init()
+/**
+ * Unit test to ensure that the Spritz cipher is behaving per the original paper.
+ * @return {bool} - true if the test vectors pass, false otherwise
+ */
+function testVectors() {
+  /*
+   * The test vectors per the original paper are:
+   *    Basic Spritz output:
+   *        "ABC": 0x77 0x9a 0x8e 0x01 0xf9 0xe9 0xcb 0xc0 ...
+   *       "spam": 0xf0 0x60 0x9a 0x1d 0xf1 0x43 0xce 0xbf ...
+   *    "arcfour": 0x1a 0xfa 0x8b 0x5e 0xe3 0x37 0xdb 0xc7 ...
+   *    32 byte hash:
+   *        "ABC": 0x02 0x8f 0xa2 0xb4 0x8b 0x93 0x4a 0x18 ...
+   *       "spam": 0xac 0xbb 0xa0 0x81 0x3f 0x30 0x0d 0x3a ...
+   *    "arcfour": 0xff 0x8c 0xf2 0x68 0x09 0x4c 0x87 0xb9 ...
+   *
+   * However, with the bias countermeasure in place, the test vectors change.
+   * After verifying the original test vectors before the countermeasure,
+   * these are the new test vectors:
+   *    Basic Spritz output:
+   *        "ABC": 0x19 0x6e 0xdf 0xc8 0x63 0x5b 0xca 0x07 ...
+   *       "spam": 0x2f 0xd9 0x62 0x8b 0x02 0x6e 0xa2 0xc8 ...
+   *    "arcfour": 0x90 0xe8 0xd8 0xdb 0x44 0xb2 0x42 0x6f ...
+   *    32 byte hash:
+   *        "ABC": 0x3f 0xcd 0x67 0x2a 0xab 0xce 0x5e 0x8d ...
+   *       "spam": 0x00 0xc5 0x69 0xfd 0x18 0xd1 0x32 0x4c ...
+   *    "arcfour": 0x87 0xc3 0xb1 0x4e 0x42 0x92 0x73 0xee ...
+   */
+
+  let codes = []
+  let s = new Spritz()
+  for (const c of "ABC") {
+    codes.push(c.charCodeAt(0))
+  }
+  s.absorb(codes)
+  if (JSON.stringify(s.squeeze(8)) !== "[25,110,223,200,99,91,202,7]") {
+    console.error("Failed test vector for basic Spritz of 'ABC'")
+    return false
+  }
+
+  codes = []
+  s = new Spritz()
+  for (const c of "spam") {
+    codes.push(c.charCodeAt(0))
+  }
+  s.absorb(codes)
+  if (JSON.stringify(s.squeeze(8)) !== "[247,217,98,139,2,110,162,200]") {
+    console.error("Failed test vector for basic Spritz of 'spam'")
+    return false
+  }
+
+  codes = []
+  s = new Spritz()
+  for (const c of "arcfour") {
+    codes.push(c.charCodeAt(0))
+  }
+  s.absorb(codes)
+  if (JSON.stringify(s.squeeze(8)) !== "[144,232,216,219,68,178,66,111]") {
+    console.error("Failed test vector for basic Spritz of 'arcfour'")
+    return false
+  }
+
+
+  codes = []
+  s = new Spritz()
+  for (const c of "ABC") {
+    codes.push(c.charCodeAt(0))
+  }
+  s.absorb(codes)
+  s.absorbStop()
+  s.absorb([32])
+  if (JSON.stringify(s.squeeze(8)) !== "[63,205,103,42,171,206,94,141]") {
+    console.error("Failed test vector for Spritz hash of 'ABC'")
+    return false
+  }
+
+  codes = []
+  s = new Spritz()
+  for (const c of "spam") {
+    codes.push(c.charCodeAt(0))
+  }
+  s.absorb(codes)
+  s.absorbStop()
+  s.absorb([32])
+  if (JSON.stringify(s.squeeze(8)) !== "[0,197,105,253,24,209,50,76]") {
+    console.error("Failed test vector for Spritz hash of 'spam'")
+    return false
+  }
+
+  codes = []
+  s = new Spritz()
+  for (const c of "arcfour") {
+    codes.push(c.charCodeAt(0))
+  }
+  s.absorb(codes)
+  s.absorbStop()
+  s.absorb([32])
+  if (JSON.stringify(s.squeeze(8)) !== "[135,195,177,78,66,146,115,238]") {
+    console.error("Failed test vector for Spritz hash of 'arcfour'")
+    return false
+  }
+
+  return true
+}
+
+if (testVectors()) {
+  init()
+} else {
+  TEXTAREA.innerText = "Test vectors failed. Please check the JavaScript console errors."
+}

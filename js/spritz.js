@@ -1,3 +1,5 @@
+"use strict"
+
 /** Class representing the Spritz CSPRNG. */
 class Spritz {
   #a // Counts how many nibbles have been absorbed.
@@ -33,14 +35,15 @@ class Spritz {
    */
   set state(s) {
     if (
-      [...new Set(s)].length === 256 &&
-      s.filter(Number.isInteger).length === 256 &&
-      Math.max(...s) === 255
+      Math.min(...s) === 0 && // Ensure the smallest number is 0.
+      Math.max(...s) === 255 && // Ensure the largest number is 255.
+      [...new Set(s)].length === 256 && // Ensure 256 array elements.
+      s.filter(Number.isInteger).length === 256 // Ensure 256 numbers.
     ) {
       this.#S = s
     } else {
       console.error(
-          'Invalid state. Must be array 256 unique integers of 0-255.'
+          'Invalid state. Must be an array of 256 unique integers 0-255.'
       )
     }
   }

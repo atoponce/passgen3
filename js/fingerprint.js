@@ -1,3 +1,5 @@
+"use strict"
+
 /**
  * Basic generation of a unique browser fingerprint for premuting Spritz.
  * The goal is to be unique enough from other users. While there are better

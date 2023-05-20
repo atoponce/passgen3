@@ -1,3 +1,5 @@
+"use strict"
+
 const tmp1 = []
 const diceware8k = []
 

@@ -1,3 +1,5 @@
+"use strict"
+
 const tmp2 = []
 const obscure = []
 
