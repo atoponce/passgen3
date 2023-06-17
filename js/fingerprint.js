@@ -9,20 +9,40 @@
  */
 function generateFingerprint() {
   let len
+  let tmp // for random storage things
   const fingerprint = []
+
+  /**
+   * Some other functions that might be worth investigating from Fingerprint2.js:
+   * 
+   * - addBehaviorKey()
+   * - webglKey()
+   * - hasLiedLanguagesKey()
+   * - hasLiedResolutionKey()
+   * - hasLiedOsKey()
+   * - hasLiedBrowserKey()
+   * - touchSupportKey()
+   */
 
   // User agent
   fingerprint.push(window.navigator.userAgent)
 
   // Screen
-  fingerprint.push(window.screen.availWidth + "×" + window.screen.availHeight)
-  fingerprint.push(window.screen.width + "×" + window.screen.height)
+  fingerprint.push((window.screen.width > window.screen.height) ? [window.screen.width, window.screen.height] : [window.screen.height, window.screen.width])
+  fingerprint.push((window.screen.availWidth > window.screen.availHeight) ? [window.screen.availWidth, window.screen.availHeight] : [window.screen.availHeight, window.screen.availWidth])
+
+  // Color depth
+  fingerprint.push(window.screen.colorDepth)
 
   // Plugins
   len = window.navigator.plugins.length
   for (let i = 0; i < len; i++) {
-    fingerprint.push(window.navigator.plugins[i].name)
+    tmp.push(window.navigator.plugins[i].name)
   }
+  tmp = tmp.sort(function(a, b)) {
+    return a[0] - b[0]
+  }
+  tmp.sort()
 
   // Cookies
   if (window.navigator.cookieEnabled) {
@@ -33,33 +53,28 @@ function generateFingerprint() {
   }
 
   // localStorage
-  len = window.localStorage.length
-  for (let i = 0; i < len; i++) {
-    fingerprint.push(window.localStorage.key(i))
-    fingerprint.push(window.localStorage.getItem(window.localStorage.key(i)))
-  }
+  try {!!window.localStorage} catch(e) {return true}
 
   // sessionStorage
-  len = window.sessionStorage.length
-  for (let i = 0; i < len; i++) {
-    fingerprint.push(window.sessionStorage.key(i))
-    fingerprint.push(
-      window.sessionStorage.getItem(window.sessionStorage.key(i))
-    )
-  }
+  try {!!window.sessionStorage} catch(e) {return true}
+
+  // indexedDB
+  fingerprint.push(!!window.indexedDB)
+
+  // openDatabase
+  fingerprint.push(!!window.openDatabase)
+
+  // CPU class
+  fingerprint.push(!!window.navigator.cpuClass ? window.navigator.cpuClass : "unknown")
+
+  // Platform
+  fingerprint.push(!!window.navigator.platform ? window.navigator.platform : "unknown")
+
+  // Do Not Track
+  fingerprint.push(!!window.navigator.doNotTrack ? window.navigator.doNotTrack : "unknown")
 
   // Time zone
-  const date = new Date()
-  const offset = date.getTimezoneOffset() / 60
-  const name = date
-    .toLocaleDateString(undefined, { day: "2-digit", timeZoneName: "long" })
-    .substring(4)
-
-  if (offset > 0) {
-    fingerprint.push("GMT-" + ("0" + offset).slice(-2) + "/" + name)
-  } else {
-    fingerprint.push("GMT+" + ("0" + offset).slice(-2) + "/" + name)
-  }
+  fingerprint.push(new Date().getTimezoneOffset())
 
   // Language
   fingerprint.push(window.navigator.language)
@@ -86,6 +101,12 @@ function generateFingerprint() {
   ctx.fillText(txt, 4, 17)
 
   fingerprint.push(canvas.toDataURL())
+
+  // Adblocking
+  const ads = document.createElement("div")
+  ads.setAttribute("id", "ads")
+  document.body.appendChild(ads)
+  fingerprint.push(document.getElementById("ads") ? false : true)
 
   return fingerprint.join("|")
 }
