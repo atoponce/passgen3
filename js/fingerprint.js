@@ -35,13 +35,14 @@ function generateFingerprint() {
   fingerprint.push(window.screen.colorDepth)
 
   // Plugins
+  tmp = []
   len = window.navigator.plugins.length
   for (let i = 0; i < len; i++) {
     tmp.push(window.navigator.plugins[i].name)
   }
-  tmp = tmp.sort(function(a, b)) {
+  tmp = tmp.sort(function(a, b) {
     return a[0] - b[0]
-  }
+  })
   tmp.sort()
 
   // Cookies
