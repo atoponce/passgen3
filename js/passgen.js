@@ -296,6 +296,25 @@ function saveEntropy() {
 }
 
 /**
+ * Generate a uniformly distributed list of 5-digit numbers so as not to collide with the numbers
+ * found in obscure.js and diceware8k.js. The goal of this function is to fill the list of candidate
+ * words for the user to type, such that the length is a multiple of a power of 2.
+ * @param {number} n - The number of 5-digit numbers needed.
+ * @returns {Array} - An array of uniformly distributed 5-digit numbers.
+ */
+function randomDigits(n) {
+  const picked = []
+  const fiveDigits = Array.from({length: 100000}, (_, n) => n.toString().padStart(5, "0"))
+
+  // Starts at 1 to prevent generating one 5-digit number too many.
+  for (let i = 1; i < 100000; i += (100000/n)) {
+    picked.push(fiveDigits[Math.floor(i)])
+  }
+
+  return picked
+}
+
+/**
  * Generate some random text for the user to type. The words are either obsure,
  * long, or both. The are also dificult to prounounce, which should make them
  * difficult to type. This improves entropy via irregular key stroke timings
@@ -303,16 +322,22 @@ function saveEntropy() {
  */
 function randomWords() {
   let rand
+  const s = 512
+  const n = 32768
   const toType = []
   const words = [...new Set(Array.prototype.concat(obscure, diceware8k))]
-  const len = words.length // 16,384 unique entries
+  const digits = randomDigits(n - words.length)
+  const finalList = [...new Set(Array.prototype.concat(words, digits))]
 
-  // Guaranteed 512 bits security, regardless of the bits per keystroke entropy
-  const req = Math.ceil(512 / Math.log2(len))
+  console.log(digits)
+  console.log(finalList)
+
+  // Guaranteed "s" bits security, regardless of the bits per keystroke entropy
+  const req = Math.ceil(s / Math.log2(finalList.length))
 
   for (let i = 0; i < req; i++) {
-    rand = extract(len)
-    toType.push(words[rand])
+    rand = extract(n)
+    toType.push(finalList[rand])
   }
 
   const randomText =
