@@ -329,9 +329,6 @@ function randomWords() {
   const digits = randomDigits(n - words.length)
   const finalList = [...new Set(Array.prototype.concat(words, digits))]
 
-  console.log(digits)
-  console.log(finalList)
-
   // Guaranteed "s" bits security, regardless of the bits per keystroke entropy
   const req = Math.ceil(s / Math.log2(finalList.length))
 
