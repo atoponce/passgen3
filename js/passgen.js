@@ -296,15 +296,17 @@ function saveEntropy() {
 }
 
 /**
- * Generate a uniformly distributed list of 5-digit numbers so as not to collide with the numbers
- * found in obscure.js and diceware8k.js. The goal of this function is to fill the list of candidate
- * words for the user to type, such that the length is a multiple of a power of 2.
+ * Generate a uniformly distributed list of 5-digit numbers so as not to collide
+ * with the numbers found in obscure.js and diceware8k.js. The goal of this
+ * function is to fill the list of candidate words for the user to type, such
+ * that the length is a multiple of a power of 2.
  * @param {number} n - The number of 5-digit numbers needed.
  * @returns {Array} - An array of uniformly distributed 5-digit numbers.
  */
 function randomDigits(n) {
   const picked = []
-  const fiveDigits = Array.from({length: 100000}, (_, n) => n.toString().padStart(5, "0"))
+  const fiveDigits = Array.from({length: 100000}, (_, n) =>
+  n.toString().padStart(5, "0"))
 
   // Starts at 1 to prevent generating one 5-digit number too many.
   for (let i = 1; i < 100000; i += (100000/n)) {
