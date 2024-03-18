@@ -16,7 +16,7 @@ let CHARCOUNT = 0 // allows multiple input characters per output character
  */
 function init() {
   NTMPL = 0
-  TEXTAREA.value = "Type here to generate your passwords.\n"
+  TEXTAREA.value = "Type here to generate your passwords:\n"
 
   TEXTAREA.addEventListener("keydown", keyDown)
   TEXTAREA.addEventListener("keyup", keyUp)
@@ -54,7 +54,7 @@ function init() {
  * Register a key press time in milliseconds and its value.
  * Spritz can be used as a deterministic random bit generator (DRBG). As Spritz
  * is a sponge construction, it is naturally a DRBG. The sponge state is the
- * "entropy pool". New random input can be included at any time using aborb(I)
+ * "entropy pool". New random input can be included at any time using absorb(I)
  * and output may be extracted at any time using squeeze(r).
  * @param {Object} key - The keystroke
  * @returns true
@@ -107,7 +107,7 @@ function keyDown(key) {
  * Register a key release time in milliseconds and its value.
  * Spritz can be used as a deterministic random bit generator (DRBG). As Spritz
  * is a sponge construction, it is naturally a DRBG. The sponge state is the
- * "entropy pool". New random input can be included at any time using aborb(I)
+ * "entropy pool". New random input can be included at any time using absorb(I)
  * and output may be extracted at any time using squeeze(r).
  * @param {Object} key - The keystroke
  * @returns true
@@ -297,13 +297,13 @@ function saveEntropy() {
 
 /**
  * Generate a uniformly distributed list of 5-digit numbers so as not to collide
- * with the numbers found in obscure.js and diceware8k.js. The goal of this
- * function is to fill the list of candidate words for the user to type, such
- * that the length is a multiple of a power of 2.
+ * with the numbers found in diceware8k.js. The goal of this function is to
+ * fill the list of candidate words for the user to type, such that the length
+ * of the candidate words is a multiple of a power of 2.
  * @param {number} n - The number of 5-digit numbers needed.
  * @returns {Array} - An array of uniformly distributed 5-digit numbers.
  */
-function randomDigits(n) {
+function uniformDigits(n) {
   const picked = []
   const fiveDigits = Array.from({length: 100000}, (_, n) =>
   n.toString().padStart(5, "0"))
@@ -317,30 +317,32 @@ function randomDigits(n) {
 }
 
 /**
- * Generate some random text for the user to type. The words are either obsure,
- * long, or both. The are also dificult to prounounce, which should make them
+ * Generate some random text for the user to type. The words are either obscure,
+ * long, or both. The are also difficult to pronounce, which should make them
  * difficult to type. This improves entropy via irregular key stroke timings
  * and typing mistakes.
  */
 function randomWords() {
   let rand
-  const s = 512
-  const n = 32768
+  const security = 512
+  const size = 65536
   const toType = []
-  const words = [...new Set(Array.prototype.concat(obscure, diceware8k))]
-  const digits = randomDigits(n - words.length)
+  const words = [...new Set(Array.prototype.concat(
+    obscure, diceware8k, blends, lorem, units()
+  ))]
+  const digits = uniformDigits(size - words.length)
   const finalList = [...new Set(Array.prototype.concat(words, digits))]
 
-  // Guaranteed "s" bits security, regardless of the bits per keystroke entropy
-  const req = Math.ceil(s / Math.log2(finalList.length))
+  // Guaranteed "s"-bits security, regardless of the bits per keystroke entropy
+  const req = Math.ceil(security / Math.log2(size))
 
   for (let i = 0; i < req; i++) {
-    rand = extract(n)
+    rand = extract(size)
     toType.push(finalList[rand])
   }
 
   const randomText =
-    "Try typing these random words accurately to maximize entropy:\n\n"
+    "Try typing the following accurately to maximize entropy:\n\n"
   document.getElementById("random").value = randomText + toType.join(" ")
 }
 
