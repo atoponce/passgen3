@@ -6,7 +6,7 @@ import java.util.*;
 	Uses keyboard latency as a source of randomness with an arcfour based entropy distiller.
 	@author Arnold G. Reinhold 
 	@version 2.0.0	Sept. 27, 1996, revised Oct. 21, 2002  
-	Copyright  © 1996 A. G. Reinhold, Cambridge, MA, USA
+	Copyright  Â© 1996 A. G. Reinhold, Cambridge, MA, USA
 	
 	PassGen is free software, and you are welcome to redistribute it 
 	under the terms of the GNU General Public License.
