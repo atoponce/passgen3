@@ -16,7 +16,7 @@ let CHARCOUNT = 0 // allows multiple input characters per output character
  */
 function init() {
   NTMPL = 0
-  TEXTAREA.value = "Type here to generate your passwords:\n"
+  TEXTAREA.value = "Click here and start typing to generate your passwords:\n"
 
   TEXTAREA.addEventListener("keydown", keyDown)
   TEXTAREA.addEventListener("keyup", keyUp)
@@ -179,7 +179,7 @@ function extract(r) {
 function addChar() {
   let data = ""
   let tmplChar = ""
-
+  const diceware8k = dicewareWords()
 
   if (NTMPL >= TEMPLATE.value.length) {
     TEXTAREA.value += "\n"
@@ -328,7 +328,7 @@ function randomWords() {
   const size = 65536
   const toType = []
   const words = [...new Set(Array.prototype.concat(
-    obscure, diceware8k, blends, lorem, units()
+    obscureWords(), dicewareWords(), blendWords(), loremIpsum(), unitWords()
   ))]
   const digits = uniformDigits(size - words.length)
   const finalList = [...new Set(Array.prototype.concat(words, digits))]
