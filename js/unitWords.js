@@ -7,7 +7,7 @@
  * to type when collecting entropy.
  * @return {array} - An array of singular and plural systems of units.
  */
-function units() {
+function unitWords() {
   const words = []
   const metricPrefixes = [ 
     // Smallest to largest.
