@@ -5,7 +5,7 @@
  * which is the source inspiration for the Lorem Ipsum filler text. Latin is a
  * perfect candidate for difficult to pronounce words so they should also be
  * difficult to type, making it a good candidate for this app.
- * @return {array} - An array of Wiktionary blend words.
+ * @return {array} - An array of Latin words.
  */
 function loremIpsum() {
   const tmp = []
