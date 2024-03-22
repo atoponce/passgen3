@@ -14,6 +14,13 @@ function unitWords() {
     "quecto", "ronto", "yocto", "zepto", "atto", "femto", "pico", "nano",
     "micro", "milli", "centi", "deci", "", "deca", "hecto", "kilo", "mega",
     "giga", "tera", "peta", "exa", "zetta", "yotta", "ronna", "quetta",
+    // Obsolete.
+    "demi", "dimi", "double", "hebdo", "hepto", "micri", "myria", "octo",
+    // Proposed, alphabetical.
+    "chici", "dea", "ento", "fito", "grouchi", "groucho", "gummi", "harpi",
+    "harpo", "hepa", "kono", "nea", "novetta", "otta", "revo", "sorta", "syto",
+    "treda", "tredo", "udeka", "udeko", "uda", "una", "vendeka", "vendeko",
+    "vunda", "vundo", "weco", "weka", "xenna", "xona", "zeppi",
   ]
   const metricUnits = [
     // Alphabetical.
@@ -36,16 +43,20 @@ function unitWords() {
   const storageUnits = [
     // Alphabetical.
     "bit", "byte", "dit", "nit", "qubit", "qudit", "qutrit", "trit", "tryte",
+    // Unofficial.
+    "bronto", "geop", "hella",
   ]
   const magnitudeUnits = [
-    // Shortest to longest. Stopping at 10^123. Using traditional Peletier long
-    // scale due to being shorter
+    // Shortest to longest. Stopping at 10^123.
     "m", "b", "tr", "quadr", "quint", "sext", "sept", "oct", "non", "dec",
     "undec", "duodec", "tredec", "quattuordec", "quintdec", "sedec",
     "septendec", "octodec", "novendec", "vigint",
+    // Fictional.
+    "baj", "baz", "cs", "gaz", "j", "mustm", "squ", "z",
   ]
   const magnitudeSuffixes = [
-    // Smallest to longest.
+    // Smallest to longest. Using traditional Peletier long scale due to being
+    // shorter.
     "illiardth", "illionth", "illiard", "illion",
   ]
 
