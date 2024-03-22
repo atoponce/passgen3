@@ -44,7 +44,7 @@ function unitWords() {
     // Alphabetical.
     "bit", "byte", "dit", "nit", "qubit", "qudit", "qutrit", "trit", "tryte",
     // Unofficial.
-    "bronto", "geop", "hella",
+    "bronto", "geop", "hella", "nina", "ninto", "tena", "tento",
   ]
   const magnitudeUnits = [
     // Shortest to longest. Stopping at 10^123.
