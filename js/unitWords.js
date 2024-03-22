@@ -18,9 +18,10 @@ function unitWords() {
     "demi", "dimi", "double", "hebdo", "hepto", "micri", "myria", "octo",
     // Proposed, alphabetical.
     "chici", "dea", "ento", "fito", "grouchi", "groucho", "gummi", "harpi",
-    "harpo", "hepa", "kono", "nea", "novetta", "otta", "revo", "sorta", "syto",
-    "treda", "tredo", "udeka", "udeko", "uda", "una", "vendeka", "vendeko",
-    "vunda", "vundo", "weco", "weka", "xenna", "xona", "zeppi",
+    "harpo", "hepa", "huna", "hunto", "kono", "nea", "nina", "ninto",
+    "novetta", "otta", "revo", "sorta", "syto", "tena", "tento", "tousa",
+    "touto", "treda", "tredo", "uda", "udeka", "udeko", "una", "vendeka",
+    "vendeko", "vunda", "vundo", "weco", "weka", "xenna", "xona", "zeppi",
   ]
   const metricUnits = [
     // Alphabetical.
@@ -39,12 +40,12 @@ function unitWords() {
     "", "kibi", "kilo", "mebi", "mega", "gibi", "giga", "tebi", "tera", "pebi",
     "peta", "exbi", "exa", "zebi", "zetta", "yobi", "yotta", "robi", "ronna",
     "quebi", "quetta",
+    // Unofficial.
+    "bronto", "gego", "geo", "geop", "hella",
   ]
   const storageUnits = [
     // Alphabetical.
     "bit", "byte", "dit", "nit", "qubit", "qudit", "qutrit", "trit", "tryte",
-    // Unofficial.
-    "bronto", "geop", "hella", "nina", "ninto", "tena", "tento",
   ]
   const magnitudeUnits = [
     // Shortest to longest. Stopping at 10^123.
