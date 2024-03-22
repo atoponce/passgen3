@@ -45,7 +45,8 @@ function unitWords() {
   ]
   const storageUnits = [
     // Alphabetical.
-    "bit", "byte", "dit", "nit", "qubit", "qudit", "qutrit", "trit", "tryte",
+    "binit", "bit", "byte", "dit", "hartley", "nat", "nibble", "nit", "qubit",
+    "qudit", "qutrit", "shannon", "trit", "tryte",
   ]
   const magnitudeUnits = [
     // Shortest to longest. Stopping at 10^123.
