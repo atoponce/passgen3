@@ -333,7 +333,7 @@ function randomWords() {
   const digits = uniformDigits(size - words.length)
   const finalList = [...new Set(Array.prototype.concat(words, digits))]
 
-  // Guaranteed "s"-bits security, regardless of the bits per keystroke entropy
+  // Guaranteed "size"-bits security, regardless of keystroke entropy
   const req = Math.ceil(security / Math.log2(size))
 
   for (let i = 0; i < req; i++) {
