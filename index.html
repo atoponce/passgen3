@@ -47,17 +47,26 @@
                 <div class="tab-pane fade show active" id="generate" role="tabpanel" aria-labelledby="generate-tab">
                     <div class="row"> <!-- Select and textarea -->
                         <div class="panel-body input-group">
-                            <select class="form-select" id="template">
-                                <option value="D D D D D D D D D D" selected>Diceware</option>
-                                <option value="MMMMMMMMMMMMMMMMMMMM">ASCII</option>
-                                <option value="S S S S S S S S">Pseudowords</option>
-                                <option value="LLLLLLLLLLLLLLLLLLLLLL">Alphanumeric</option>
-                                <option value="AAAA AAAA AAAA AAAA AAAA AAAA AAAA">Alphabetic</option>
-                                <option value="HHHH HHHH HHHH HHHH HHHH HHHH HHHH HHHH">Hexadecimal</option>
-                                <option value="99999 99999 99999 99999 99999 99999 99999 99999">Decimal</option>
-                                <option value="66666 66666 66666 66666 66666 66666 66666 66666 66666 66666">Senary</option>
-                            </select>
-                            <div class="panel-body input-group-btn">
+                            <div class="col-md-7">
+                                <select class="form-select" id="template">
+                                    <option value="D D D D D D D D D D" selected>Diceware</option>
+                                    <option value="MMMMMMMMMMMMMMMMMMMM">ASCII</option>
+                                    <option value="S S S S S S S S">Pseudowords</option>
+                                    <option value="LLLLLLLLLLLLLLLLLLLLLL">Alphanumeric</option>
+                                    <option value="AAAA AAAA AAAA AAAA AAAA AAAA AAAA">Alphabetic</option>
+                                    <option value="HHHH HHHH HHHH HHHH HHHH HHHH HHHH HHHH">Hexadecimal</option>
+                                    <option value="99999 99999 99999 99999 99999 99999 99999 99999">Decimal</option>
+                                    <option value="66666 66666 66666 66666 66666 66666 66666 66666 66666 66666">Senary</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" id="cipher" onchange="selectCipher()">
+                                    <option value="chacha">ChaCha</option>ChaCha</option>
+                                    <option value="spritz" selected>Spritz</option>
+                                    <option value="trivium">Trivium</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 offset3">
                                 <button class="btn btn-danger" onclick="init()">Clear Passwords</button>
                                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#entropySaved" onclick="saveEntropy()">Save Entropy</button>
                             </div>
@@ -76,7 +85,7 @@
                                 </div>
                                 <div class="modal-body">
                                     <p>To remove, pull up the JavaScript console and type:</p>
-                                    <p><tt>localStorage.removeItem('spritzSeed')</tt></p>
+                                    <p><tt>localStorage.removeItem('passgen3seed')</tt></p>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
@@ -179,7 +188,7 @@
                 </div>
                 <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
                     <div class="row"> <!-- Security -->
-                        <p>This web app is not the most secure way to make your password! Traces of the passwords you create can be left behind in your computer's memory, among other risks. Clicking "Save Entropy" will store a 32-bit seed from the RNG state to disk. Using the <a href="https://eprint.iacr.org/2016/856">Spritz cipher</a> with key presses is backtracking resistant, so an adversary should not be able to regenerate prior passwords from it. They also should not be able to predict your keystrokes, so future passwords should be improbable to generate also. But a leaked RNG state could present other risks. For maximum security we still recommend using ordinary dice to select a password or passphrase. See the <a href="http://world.std.com/~reinhold/diceware.html">Diceware page</a> for more details.</p>
+                        <p>This web app is not the most secure way to make your password! Traces of the passwords you create can be left behind in your computer's memory, among other risks. Clicking "Save State" will store a 32 byte seed from the RNG state to disk and save your preferred cipher. Using the <a href="https://cr.yp.to/chacha.html">ChaCha</a>, <a href="https://eprint.iacr.org/2016/856">Spritz</a>, or <a href="https://www.ecrypt.eu.org/stream/triviumpf.html">Trivium</a> stream ciphers with key presses is backtracking resistant such that an adversary should not be able to regenerate prior passwords from it. They also should not be able to predict your keystrokes, so future passwords should be improbable to generate also. But a leaked RNG state could present other risks. For maximum security we still recommend using ordinary dice to select a password or passphrase. See the <a href="http://world.std.com/~reinhold/diceware.html">Diceware page</a> for more details.</p>
                         <p>PassGen3 awards only 2 bits of entropy per character typed. This is based on <a href="https://en.wikipedia.org/wiki/Entropy_(information_theory)">Shannon entropy of English text</a> and <a href="https://pubmed.ncbi.nlm.nih.gov/33571075/">synchronization between keyboard typing and neural oscillations</a>. There may be more entropy per keystroke, but 2 bits is about as liberal as I dare award and it's enough to generate passwords very quickly. As such, you will be required to type 64 characters on page load to seed the state with at least 128 bits of entropy before passwords begin to appear. PassGen3 does track all entropy, accumulated and used, to make your typing as efficient as possible.</p>
                         <p>The security margins of each password type are as follows:</p>
                         <div class="panel-body">
@@ -194,18 +203,19 @@
                                 <li><strong>Senary</strong>: ~2.58 bits per character</li>
                             </ul>
                         </div>
-                        <p>Nonetheless, using this web app to generate a password is far safer than picking your pet's name or your mother's birthday. Because JavaScript web apps download from an untrusted web server, there is risk of mischief. This web app does not make any network connections, so you can run it offline after you download it and inspect the source code.</p>
-                        <p>You should be aware that someone could substitute a bogus version of the web app that creates apparently random passwords that are, in fact, easy for the adversary to guess. To reduce this risk, <a href="https://github.com/atoponce/passgen3">the source code of the web app is published as open source</a>.</p>
+                        <p>Nonetheless, using this web app to generate a password is far safer than picking your pet's name or your mother's birthday. Because JavaScript web apps download from an untrusted web server, there is risk of mischief. This web app does not make any network connections, so you can run it offline after you download it and inspect the source code. People desiring even greater assurance in security can use the dice-based password generation techniques described at <a href="https://www.diceware.com">https://www.diceware.com</a>.</p>
+                        <p>You should be aware that someone could substitute a bogus version of the web app that creates apparently random passwords that are, in fact, easy for the adversary to guess. To reduce this risk, <a href="https://github.com/atoponce/passgen3">the source code of the web app is published as open source</a>. The ChaCha, Spritz, and Trivium stream ciphers were also chosen as they are easy to understand and the source code should be easy to read for those moderatly familiar with programming.</p>
                         <p>Random generation methods will very rarely create a password that is an English word or phrase or simple letter pattern. If a password looks like an ordinary word (or, with the "ASCII" template, is all the same case) simply type some more and use the next password.</p>
                     </div>
                 </div>
                 <div class="tab-pane fade" id="technical" role="tabpanel" aria-labelledby="techincal-tab">
                     <div class="row"> <!-- Technical Details -->
-                        <p>PassGen3 uses a strong method for mixing randomness. The first version of PassGen used an entropy distiller with a 64-bit internal state, based on a linear congruential algorithm. PassGen2 used an entropy distiller based on the weak RC4 cipher. PassGen3 uses an entropy distiller based on the <a href="https://eprint.iacr.org/2016/856">Spritz cipher</a>.</p>
-                        <p>As in Spritz, PassGen3 uses a 256-byte state vector that is initialized to be a null permutation. As Spritz is based on a sponge construction, both the keypress time in milliseconds and the character value are absorbed to permute the Spritz state. As such, the Spritz state is highly mixed by each keystroke. Each password output character is then squeezed out of the Spritz state.</p>
+                        <p>PassGen3 uses a strong method for mixing randomness. The first version of PassGen used an entropy distiller with a 64-bit internal state, based on a linear congruential algorithm. PassGen2 used an entropy distiller based on the weak RC4 cipher. PassGen3 allows you to pick from the <a href="https://cr.yp.to/chacha.html">ChaCha</a>, <a href="https://eprint.iacr.org/2016/856">Spritz</a>, or <a href="https://www.ecrypt.eu.org/stream/triviumpf.html">Trivium </a> stream ciphers as an entropy distiller.</p>
+                        <p><strong>In Spritz</strong>, a 256-byte state vector that is initialized to be a null permutation. As Spritz is based on a sponge construction, both the key press time in milliseconds and the character value are absorbed to permute the Spritz state. As such, the Spritz state is highly mixed by each keystroke. Each password output character is then squeezed out of the Spritz state. <a href="https://eprint.iacr.org/2016/092">Published analysis</a> have shown that Spritz can be distinguished from true random white noise. As such, a <a href="https://dr.ntu.edu.sg/handle/10220/43486">countermeasure has been added</a> to remove the distinguishers found in the keystream.</p>
+                        <p><strong>In ChaCha</strong>, a 64-byte state vector is initialized following <a href="https://datatracker.ietf.org/doc/html/rfc8439">RFC 8439</a>. ChaCha is based on an ARX (add-rotate-xor) cipher that builds a keystream that is XORed with the data. Unlike Spritz, the ChaCha state is not dependent on the data it is encrypting. PassGen3 should provide a consistent API for all ciphers, so an "absorb" and "squeeze" functionality have been added to ChaCha. This is done by maintaining a 64-byte entropy pool to store key presses in milliseconds and their character values. Once the pool is filled, it is used to directly rekey ChaCha.</p>
+                        <p><strong>In Trivium</strong>, a 288-bit state vector is initialized to be a null permutation following <a href="https://www.ecrypt.eu.org/stream/p3ciphers/trivium/trivium_p3.pdf">the specification</a>. Trivium uses three non-linear feedback shift registers in a closed loop. It is optimized for hardware so operates on individual bits instead of bytes like ChaCha and Spritz. Trivium also is not based on a sponge construction, so like ChaCha, "absorb" and "squeeze" functions have been added to keep a consistent API in PassGen3. Also like ChaCha, a 10-byte entropy pool to store key presses in milliseconds and character values is maintained. Once the pool is filled, it is used to directly key Trivium.</p>
                         <p>When using an 8-bit value to select a character from an alphabet of length "n", there is a risk of bias if "n" does not evenly divide 256. To eliminate this, candidate cipher output bytes are discarded if they are outside of the range that is the largest multiple of "n" less than or equal to 256.</p>
-                        <p><a href="https://eprint.iacr.org/2016/092">Published analysis</a> have shown that Spritz can be distinguished from true random white noise. But this is not of consequence to compromise the generation of a few passwords. PassGen3 performs extensive absorbing of initialization data via the way of a browser fingerprint and requiring the user to type at least 64 characters when the page is loaded to eliminate any early and potential RC4-like biases, as Spritz is similar in design to RC4. Further, a <a href="https://www.jstage.jst.go.jp/article/transfun/E100.A/6/E100.A_1296/_article">countermeasure has been added</a> to remove the short-tem and long-term two-byte distinguishers found in the key stream.</p>
-                        <p>Using Spritz has several advantages. The capacity of Spritz as a sponge construction is large, at 936 bits, larger than SHA-3. The design as a sponge construction makes it ideal for other uses, such as cryptographic hash functions, deterministic random bit generators, an authenticated encryption cipher with associated data, etc. Like RC4, it is simple to implement and easy to verify. The last consideration is important for anyone contemplating using a utility downloaded over the Internet. Unfortunately, Spritz is significantly less efficient than RC4 and is about 50% the performance in hardware when compared to Keccak, another sponge algorithm. Performance isn't a concern for this web app however. People desiring even greater assurance in security can use the dice-based password generation techniques described at <a href="https://www.diceware.com">https://www.diceware.com</a>.
+                        <p>PassGen3 performs extensive absorbing of initialization data via the way of a browser fingerprint and requiring the user to type at least 64 characters when the page is loaded. The key presses are required to key the cipher state with at least 128 bits of keyboard entropy.</p>
                     </div>
                 </div>
                 <div class="tab-pane fade" id="terms" role="tabpanel" aria-labelledby="terms-tab">
@@ -232,7 +242,9 @@
         <script src="js/loremIpsum.js"></script>            <!-- The original source of Lorem Ipsum for more typing strangeness -->
         <script src="js/unitWords.js"></script>             <!-- Different prefixed and suffixed units of measurements -->
         <script src="js/dactylogram.js"></script>           <!-- Simple browser fingerprint generator -->
+        <script src="js/chacha.js"></script>                <!-- The ChaCha cipher -->
         <script src="js/spritz.js"></script>                <!-- The Spritz cipher -->
+        <script src="js/trivium.js"></script>               <!-- The Trivium cipher -->
         <script src="js/passgen.js"></script>               <!-- The core application functions -->
     </body>
 </html>

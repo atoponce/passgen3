@@ -1,30 +1,42 @@
 "use strict"
 
 // GLOBALS
-const SPRITZ = new Spritz() // Initialize the Spritz state
 const PRECHARS = 64 // number of characters required before any output (128 bits)
 const ENTROPY = new Uint32Array(1) // The entropy bucket for tracking what entropy has been used and what is available
 const TEXTAREA = document.getElementById("textarea")
 const TEMPLATE = document.getElementById("template")
-let SELTMPL = TEMPLATE.selectedIndex // track which template we're using
 
+let CIPHER
+let SELTMPL = TEMPLATE.selectedIndex // track which template we're using
 let NTMPL = 0 // keeps track of where we are in the textarea
 let CHARCOUNT = 0 // allows multiple input characters per output character
 
+function selectCipher() {
+  const cipherChoice = document.getElementById("cipher").value
+
+  if (cipherChoice === "chacha") {
+    CIPHER = new ChaCha()
+  } else if (cipherChoice === "spritz") {
+    CIPHER = new Spritz()
+  } else if (cipherChoice === "trivium") { // Coming soon
+    CIPHER = new Trivium()
+  }
+
+  init()
+}
 /**
- * Initialize the Spritz state to a random state before keystrokes are entered.
+ * Initialize the cipher to a random state before keystrokes are entered.
  */
 function init() {
   NTMPL = 0
   TEXTAREA.value = "Click here and start typing to generate your passwords:\n"
-
   TEXTAREA.addEventListener("keydown", keyDown)
   TEXTAREA.addEventListener("keyup", keyUp)
 
   // If a seed is saved from the last session size, absorb the seed and credit
   // the user with 64 characters already typed.
-  if (window.localStorage.spritzSeed) {
-    SPRITZ.absorb(JSON.parse(window.localStorage.spritzSeed))
+  if (window.localStorage.passgen3seed) {
+    CIPHER.absorb(new Uint8Array(JSON.parse(window.localStorage.passgen3seed)))
     TEXTAREA.value += ".".repeat(PRECHARS) + "\n"
     CHARCOUNT = 64
   } else if (CHARCOUNT < PRECHARS) {
@@ -34,16 +46,16 @@ function init() {
   }
 
   // Generate a unique browser fingerprint and convert to simple byte array.
-  const fpBytes = []
   const fp = generateFingerprint()
   const l = fp.length
+  const fpBytes = new Uint8Array(l)
 
   for (let i = 0; i < l; i++) {
-    fpBytes.push(fp.charCodeAt(i))
+    fpBytes[i] = fp.charCodeAt(i)
   }
 
   // Absorb the browser fingerprint
-  SPRITZ.absorb(fpBytes)
+  CIPHER.absorb(fpBytes)
 
   // Generate some random but difficult-to-type and generally long text for
   // the user. From the Scripps Spelling Bee word list.
@@ -52,10 +64,6 @@ function init() {
 
 /**
  * Register a key press time in milliseconds and its value.
- * Spritz can be used as a deterministic random bit generator (DRBG). As Spritz
- * is a sponge construction, it is naturally a DRBG. The sponge state is the
- * "entropy pool". New random input can be included at any time using absorb(I)
- * and output may be extracted at any time using squeeze(r).
  * @param {Object} key - The keystroke
  * @returns true
  */
@@ -77,7 +85,7 @@ function keyDown(key) {
     key.preventDefault() // prevent keys from scrolling the page
   }
 
-  SPRITZ.absorb([key.key.charCodeAt(0)])
+  CIPHER.absorb(new Uint8Array([key.key.charCodeAt(0)]))
 
   if (key.repeat) {
     key.preventDefault() // prevent key repeat
@@ -85,12 +93,10 @@ function keyDown(key) {
   }
 
   // use current time of key down (milliseconds) as a source of randomness
-  const byteArr = int64ToByteArray(Date.now())
-  SPRITZ.absorb(byteArr)
+  const byteArr = new Uint8Array(int64ToByteArray(Date.now()))
+  CIPHER.absorb(byteArr)
 
-  // use character count as another source of randomness
   CHARCOUNT++
-  SPRITZ.absorb(int64ToByteArray(CHARCOUNT))
 
   if (CHARCOUNT < PRECHARS) {
     TEXTAREA.value += "."
@@ -105,18 +111,14 @@ function keyDown(key) {
 
 /**
  * Register a key release time in milliseconds and its value.
- * Spritz can be used as a deterministic random bit generator (DRBG). As Spritz
- * is a sponge construction, it is naturally a DRBG. The sponge state is the
- * "entropy pool". New random input can be included at any time using absorb(I)
- * and output may be extracted at any time using squeeze(r).
  * @param {Object} key - The keystroke
  * @returns true
  */
 function keyUp(key) {
   // use current time of key up (milliseconds) as a source of randomness
-  const byteArr = int64ToByteArray(Date.now())
+  const byteArr = new Uint8Array(int64ToByteArray(Date.now()))
 
-  SPRITZ.absorb(byteArr)
+  CIPHER.absorb(byteArr)
 
   return true
 }
@@ -149,7 +151,7 @@ function int64ToByteArray(n) {
 }
 
 /**
- * Uniformly extract a random number from Spritz.
+ * Uniformly extract a random number from the stream cipher DRBG.
  * @param {number} r - A maximum value
  * @returns {number} - A number between [0, r-1]
  */
@@ -158,7 +160,7 @@ function extract(r) {
   const min = 65536 % r
 
   do {
-    a = SPRITZ.squeeze(2)
+    a = CIPHER.squeeze(2)
     q = a[0] << 8 | a[1]
   } while (q < min) // avoid biased choice
 
@@ -166,7 +168,7 @@ function extract(r) {
 }
 
 /**
- * Generate a character or word based on the random number from Spritz.
+ * Generate a character or word based on the random number from the cipher.
  * Each template is defined in the index.html for this function to follow when
  * generating passwords. Given that we know the size of each word list and
  * character set, we know how much entropy exists with each choice in the set.
@@ -290,9 +292,9 @@ function addChar() {
   return
 }
 
-/** Save the current Spritz state to disk.  */
+/** Generate a seed from the cipher state and save to disk.  */
 function saveEntropy() {
-  localStorage.setItem("spritzSeed", JSON.stringify(SPRITZ.squeeze(32)))
+  localStorage.setItem("passgen3seed", JSON.stringify(CIPHER.squeeze(32)))
 }
 
 /**
@@ -345,3 +347,5 @@ function randomWords() {
     "Try typing the following accurately to maximize entropy:\n\n"
   document.getElementById("random").value = randomText + toType.join(" ")
 }
+
+selectCipher()
