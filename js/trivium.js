@@ -15,56 +15,44 @@ class Trivium {
    */
   constructor(key, iv) {
     if (typeof key === "undefined") {
-      key = new Uint8Array([
-        0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
-      ])
+      key = new Uint8Array([1, 1, 1, 1, 1, 1, 1, 1])
     }
 
     if (typeof iv === "undefined") {
-      iv = new Uint8Array([
-        0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
-      ])
+      iv = new Uint8Array([1, 1, 1, 1, 1, 1, 1, 1])
     }
 
-    if (!(key instanceof Uint8Array)) {
-      "Key should be a 10-element Uint8Array."
+    if (!(key instanceof Uint8Array) || key.length !== 10) {
+      throw new Error("Key should be a 10-element Uint8Array.")
     }
 
-    if (!(iv instanceof Uint8Array)) {
-      "IV should be a 10-element Uint8Array."
+    if (!(iv instanceof Uint8Array) || iv.length !== 10) {
+      throw new Error("IV should be a 10-element Uint8Array.")
     }
 
     this.#pool = new Uint8Array(10)
     this.#poolpos = 0
 
-    // (s1, .............., s93) | (s94, ..............., s177) | (s178, ......, s288)
-    // (k1, ..., k80, 0, ..., 0) | (iv1, ..., iv80, 0, 0, 0, 0) | (0, ..., 0, 1, 1, 1)
     this.#state = Array.from(Array(288), (_, i) => 0)
-    for (let i = 0; i < 80; i += 8) {
-      this.#state[i + 0] = (key[i >> 3] >> 7) & 0x1
-      this.#state[i + 1] = (key[i >> 3] >> 6) & 0x1
-      this.#state[i + 2] = (key[i >> 3] >> 5) & 0x1
-      this.#state[i + 3] = (key[i >> 3] >> 4) & 0x1
-      this.#state[i + 4] = (key[i >> 3] >> 3) & 0x1
-      this.#state[i + 5] = (key[i >> 3] >> 2) & 0x1
-      this.#state[i + 6] = (key[i >> 3] >> 1) & 0x1
-      this.#state[i + 7] = (key[i >> 3] >> 0) & 0x1
 
-      this.#state[i +  93] = (iv[i >> 3] >> 7) & 0x1
-      this.#state[i +  94] = (iv[i >> 3] >> 6) & 0x1
-      this.#state[i +  95] = (iv[i >> 3] >> 5) & 0x1
-      this.#state[i +  96] = (iv[i >> 3] >> 4) & 0x1
-      this.#state[i +  97] = (iv[i >> 3] >> 3) & 0x1
-      this.#state[i +  98] = (iv[i >> 3] >> 2) & 0x1
-      this.#state[i +  99] = (iv[i >> 3] >> 1) & 0x1
-      this.#state[i + 100] = (iv[i >> 3] >> 0) & 0x1
+    const keyBits = []
+    const ivBits = []
+
+    for (let i = 0; i < 10; i++) {
+      keyBits.push(this.#byteToBits(key[i]))
+      ivBits.push(this.#byteToBits(iv[i]))
+    }
+
+    for (let i = 0; i < 80; i++) {
+      this.#state[i] = keyBits[i]
+      this.#state[i + 93] = ivBits[i]
     }
 
     this.#state[285] = 1
     this.#state[286] = 1
     this.#state[287] = 1
 
-    for (let i = 0; i < 4 * 288; i++) {
+    for (let i = 0; i < (288 << 2); i++) {
       this.#genKeyStream()
     }
   }
@@ -106,19 +94,38 @@ class Trivium {
   }
 
   /**
-   * Generates a large enough keystream to encrypt/decrypt data.
-   * @param {number} len - The length of the requested keystream in bits.
+   * Convert an unsigned 8-bit integer to a bit-array.
+   * @param{number} byte - An 8-bit unsigned integer.
+   * @returns {Uint8Array} bits - An 8-element bit array.
    */
-  #keyStream(len) {
-    this.#keystream = new Uint8Array(len)
+  #byteToBits(byte) {
+    const bits = new Uint8Array(8)
 
-    for (let i = 0; i < len; i++) {
-      this.#keystream[i] = this.#genKeyStream()
+    for (let i = 0; i < 8; i++) {
+      bits[i] = (byte >> (7 - i)) & 1
     }
+
+    return bits
   }
 
   /**
-   * Encrypt and decrypt data.
+   * Convert a bit-array to a an unsigned 8-bit integer.
+   * @param{Uint8Array} bits - An 8-element bit array.
+   * @returns {number} byte - An 8-bit unsigned integer.
+   */
+  #bitsToByte(bits) {
+    let byte = 0
+
+    for (let i = 0; i < 8; i++) {
+      byte |= (bits[i] << (7 - i))
+    }
+
+    return byte
+  }
+
+  /**
+   * Encrypting and decrypting data is done by applying XOR to the data and
+   * Trivium keystream.
    * @param {Uint8Array} data - Array of data to XOR with the keystream.
    * @return {Uint8Array} output - Array of plaintext or ciphertext bytes.
    * @throws {Error}
@@ -129,24 +136,16 @@ class Trivium {
     }
 
     const output = new Uint8Array(data.length)
-    const keybytes = new Uint8Array(data.length)
-
-    this.#keyStream(data.length << 3)
-
-    for (let i = 0; i < data.length << 3; i += 8) {
-      keybytes[i >> 3] = 
-        (this.#keystream[i + 0] << 7) |
-        (this.#keystream[i + 1] << 6) |
-        (this.#keystream[i + 2] << 5) |
-        (this.#keystream[i + 3] << 4) |
-        (this.#keystream[i + 4] << 3) |
-        (this.#keystream[i + 5] << 2) |
-        (this.#keystream[i + 6] << 1) |
-        (this.#keystream[i + 7] << 0)
-    }
 
     for (let i = 0; i < data.length; i++) {
-      output[i] = data[i] ^ keybytes[i]
+      const inputBits = this.#byteToBits(data[i])
+      const outputBits = new Uint8Array(8)
+
+      for (let j = 7; j >= 0; j--) {
+        outputBits[j] = inputBits[j] ^ this.#genKeyStream()
+      }
+
+      output[i] = this.#bitsToByte(outputBits)
     }
 
     return output
