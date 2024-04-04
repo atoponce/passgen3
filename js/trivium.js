@@ -34,28 +34,31 @@ class Trivium {
       throw new Error("IV should be a 10-element Uint8Array.")
     }
 
+    this.#state = new Array(288).fill(0)
     this.#pool = new Uint8Array(10)
     this.#poolpos = 0
-
-    this.#state = Array.from(Array(288), (_, i) => 0)
 
     const keyBits = []
     const ivBits = []
 
     for (let i = 0; i < 10; i++) {
       let tmpBits = this.#byteToBits(key[i])
+      tmpBits.reverse()
 
       for (let j = 0; j < 8; j++) {
         keyBits.push(tmpBits[j])
       }
 
       tmpBits = this.#byteToBits(iv[i])
+      tmpBits.reverse()
 
       for (let j = 0; j < 8; j++) {
         ivBits.push(tmpBits[j])
       }
-
     }
+
+    keyBits.reverse()
+    ivBits.reverse()
 
     for (let i = 0; i < 80; i++) {
       this.#state[i] = keyBits[i]
