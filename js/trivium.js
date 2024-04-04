@@ -43,8 +43,18 @@ class Trivium {
     const ivBits = []
 
     for (let i = 0; i < 10; i++) {
-      keyBits.push(this.#byteToBits(key[i]))
-      ivBits.push(this.#byteToBits(iv[i]))
+      let tmpBits = this.#byteToBits(key[i])
+
+      for (let j = 0; j < 8; j++) {
+        keyBits.push(tmpBits[j])
+      }
+
+      tmpBits = this.#byteToBits(iv[i])
+
+      for (let j = 0; j < 8; j++) {
+        ivBits.push(tmpBits[j])
+      }
+
     }
 
     for (let i = 0; i < 80; i++) {
