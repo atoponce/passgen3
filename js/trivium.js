@@ -15,11 +15,15 @@ class Trivium {
    */
   constructor(key, iv) {
     if (typeof key === "undefined") {
-      key = new Uint8Array([1, 1, 1, 1, 1, 1, 1, 1])
+      key = new Uint8Array([
+        0x53, 0x65, 0x74, 0x20, 0x54, 0x72, 0x69, 0x76, 0x69, 0x75 // "Set Triviu"
+      ])
     }
 
     if (typeof iv === "undefined") {
-      iv = new Uint8Array([1, 1, 1, 1, 1, 1, 1, 1])
+      iv = new Uint8Array([
+        0x6d, 0x20, 0x6b, 0x65, 0x79, 0x20, 0x26, 0x20, 0x49, 0x56 // "m key & IV"
+      ])
     }
 
     if (!(key instanceof Uint8Array) || key.length !== 10) {
