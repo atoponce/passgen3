@@ -35,6 +35,7 @@ class Spritz {
    */
   set state(s) {
     if (
+      s instanceof Array && // Ensure the supplied state is an Array data type.
       Math.min(...s) === 0 && // Ensure the smallest number is 0.
       Math.max(...s) === 255 && // Ensure the largest number is 255.
       [...new Set(s)].length === 256 && // Ensure 256 array elements.
@@ -42,8 +43,8 @@ class Spritz {
     ) {
       this.#S = s
     } else {
-      console.error(
-          'Invalid state. Must be an array of 256 unique integers 0-255.'
+      throw new Error(
+        "Invalid state. Must be an array of 256 unique integers 0-255."
       )
     }
   }
