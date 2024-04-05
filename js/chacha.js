@@ -55,7 +55,7 @@ class ChaCha {
     this.#rounds = rounds
     this.#keypos = 0
     this.#keystream = Array.from(Array(64), (_, i) => 0)
-    this.#pool = new Uint8Array(64)
+    this.#pool = new Uint8Array(32)
     this.#poolpos = 0
     this.#state = [
       0x61707865, 0x3320646e, 0x79622d32, 0x6b206574, // "expand 32-byte k"
@@ -153,7 +153,8 @@ class ChaCha {
   }
 
   /**
-   * Encrypt and decrypt data
+   * Encrypting and decrypting data is done by applying XOR to the data and
+   * ChaCha keystream.
    * @param {Uint8Array} data - Array of data to XOR with the keystream.
    * @return {Uint8Array} output - Array of plaintext or ciphertext.
    * @throws {Error}
@@ -181,49 +182,50 @@ class ChaCha {
 
   /**
    * This rekeys the ChaCha cipher for use as an RNG. Keyboard entropy is
-   * colleced into a 64-byte entropy pool. Once the pool is filled, eight 32-bit
-   * keys are generated to rekey the ChaCha state directly. There are 13 total
-   * bytes being collected by the keyboard:
+   * colleced into a 32-byte entropy pool. Once the pool is filled, a counter is
+   * encrypted and combined with each byte in the entropy pool to rekey ChaCha.
+   * There are 13 total bytes being collected by the keyboard:
    *  - 1 key value byte
    *  - 6 key press timestamp bytes
    *  - 6 key release timestamp bytes
-   * Because 13 is relatively prime to 64, each of the 13 keyboard bytes will
-   * see all 64 positions in the pool if the user types long enough. Thus for
-   * mixing, the pool bytes are XORed with the collected bytes.
-   * @param {Uint8Array} data - An array of unsigned 8-bit integers.
+   * Because 13 is relatively prime to 32, each of the 13 keyboard bytes will
+   * see all 32 positions in the pool if the user types long enough. For mixing,
+   * the pool bytes are XORed with the collected bytes.
    */
-  #rekey(data) {
-    for (let i = 0; i < data.length; i++) {
-      this.#pool[this.#poolpos] ^= data[i]
-      this.#poolpos++
+  #rekey() {
+    const k = []
 
-      if (this.#poolpos === 64) {
-        for (let j = 0; j < 8; j++) {
-          this.#state[j + 4] = 
-            this.#pool[j * 4] |
-            this.#pool[j * 4 + 1] << 8 |
-            this.#pool[j * 4 + 2] << 16 |
-            this.#pool[j * 4 + 3] << 24
+    for (let i = 0; i < 32; i += 4) {
+      const k0 = this.#update(new Uint8Array([i])) ^ this.#pool[i]
+      const k1 = this.#update(new Uint8Array([i + 1])) ^ this.#pool[i + 1]
+      const k2 = this.#update(new Uint8Array([i + 2])) ^ this.#pool[i + 2]
+      const k3 = this.#update(new Uint8Array([i + 3])) ^ this.#pool[i + 3]
 
-          this.#state[j + 4] >>>= 0
-        }
-        this.#poolpos = 0
-      }
+      k.push(k0 | (k1 << 8) | (k2 << 16) | (k3 << 24))
+    }
+
+    for (let i = 0; i < 8; i++) {
+      this.#state[i + 4] = k[i]
+      this.#state[i + 4] >>>= 0
     }
   }
 
   /**
-   * This is encryption while ignoring the returned ciphertext as we're not
-   * interested in decrypting anything. It is coupled with the squeeze()
-   * function to provide a consistent API with Spritz while being used in
-   * PassGen3. The absorb() and squeeze() functions here are a hack using the
-   * ChaCha stream cipher to behave like a sponge. However, this does not turn
-   * ChaCha into a true sponge construction.
+   * This function is is coupled with the squeeze() function to provide a
+   * consistent API with Spritz while being used in PassGen3. The absorb() and
+   * squeeze() functions here are a hack using the ChaCha stream cipher to
+   * behave like a sponge. However, this does not turn ChaCha into a true sponge
+   * construction.
    * @param {Uint8Array} data - An array of unsigned 8-bit integers.
    */
   absorb(data) {
     this.#update(data)
-    this.#rekey(data)
+
+    for (let i = 0; i < data.length; i++) {
+      this.#pool[this.#poolpos++ & 0x1f] ^= data[i]
+    }
+
+    this.#rekey()
   }
 
   /**
@@ -238,7 +240,6 @@ class ChaCha {
    */
   squeeze(r) {
     const p = new Uint8Array(r)
-    const output = []
 
     for (let i = 0; i < r; i++) {
       p[i] = this.#update(new Uint8Array([i]))
