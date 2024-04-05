@@ -11,19 +11,6 @@ let SELTMPL = TEMPLATE.selectedIndex // track which template we're using
 let NTMPL = 0 // keeps track of where we are in the textarea
 let CHARCOUNT = 0 // allows multiple input characters per output character
 
-function selectCipher() {
-  const cipherChoice = document.getElementById("cipher").value
-
-  if (cipherChoice === "chacha") {
-    CIPHER = new ChaCha()
-  } else if (cipherChoice === "spritz") {
-    CIPHER = new Spritz()
-  } else if (cipherChoice === "trivium") {
-    CIPHER = new Trivium()
-  }
-
-  init()
-}
 /**
  * Initialize the cipher to a random state before keystrokes are entered.
  */
@@ -32,6 +19,16 @@ function init() {
   TEXTAREA.value = "Click here and start typing to generate your passwords:\n"
   TEXTAREA.addEventListener("keydown", keyDown)
   TEXTAREA.addEventListener("keyup", keyUp)
+
+  let cipherChoice = document.getElementById("cipher").value
+
+  if (cipherChoice === "chacha") {
+    CIPHER = new ChaCha()
+  } else if (cipherChoice === "spritz") {
+    CIPHER = new Spritz()
+  } else if (cipherChoice === "trivium") {
+    CIPHER = new Trivium()
+  }
 
   // If a seed is saved from the last session size, absorb the seed and credit
   // the user with 64 characters already typed.
@@ -349,4 +346,4 @@ function randomWords() {
   document.getElementById("random").value = randomText + toType.join(" ")
 }
 
-selectCipher()
+init()
