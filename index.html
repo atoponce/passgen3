@@ -47,7 +47,7 @@
                 <div class="tab-pane fade show active" id="generate" role="tabpanel" aria-labelledby="generate-tab">
                     <div class="row"> <!-- Select and textarea -->
                         <div class="panel-body input-group">
-                            <div class="col-md-7">
+                            <div class="col-md-6">
                                 <select class="form-select" id="template">
                                     <option value="D D D D D D D D D D" selected>Diceware</option>
                                     <option value="MMMMMMMMMMMMMMMMMMMM">ASCII</option>
@@ -59,17 +59,33 @@
                                     <option value="66666 66666 66666 66666 66666 66666 66666 66666 66666 66666">Senary</option>
                                 </select>
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-md-3">
                                 <select class="form-select" id="cipher" onchange="selectCipher()">
                                     <option value="chacha">ChaCha</option>ChaCha</option>
                                     <option value="spritz" selected>Spritz</option>
                                     <option value="trivium">Trivium</option>
                                 </select>
                             </div>
-                            <div class="col-md-3 offset3">
-                                <button class="btn btn-danger" onclick="init()">Clear Passwords</button>
-                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#entropySaved" onclick="saveEntropy()">Save Entropy</button>
+                            <div class="col-md-3">
+                                <button type="button" class="btn btn-danger" onclick="init()">Clear Passwords</button>
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#entropySaved" onclick="saveEntropy()">Save State</button>
                             </div>
+
+                            <!-- For aligning buttons. Ugh.
+                            <div class="col-md-1 border text-center">1</div>
+                            <div class="col-md-1 border text-center">2</div>
+                            <div class="col-md-1 border text-center">3</div>
+                            <div class="col-md-1 border text-center">4</div>
+                            <div class="col-md-1 border text-center">5</div>
+                            <div class="col-md-1 border text-center">6</div>
+                            <div class="col-md-1 border text-center">7</div>
+                            <div class="col-md-1 border text-center">8</div>
+                            <div class="col-md-1 border text-center">9</div>
+                            <div class="col-md-1 border text-center">10</div>
+                            <div class="col-md-1 border text-center">11</div>
+                            <div class="col-md-1 border text-center">12</div>
+                            -->
+
                         </div>
                         <div class="input-group">
                             <textarea readonly class="form-control" id="textarea"></textarea>
