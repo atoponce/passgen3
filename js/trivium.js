@@ -5,7 +5,7 @@ class Trivium {
   #state      
   #keystream  // Trivium keystream.
   #pool
-  #poolpos
+  #counter
 
   /**
    * Initialize Trivium with key and IV.
@@ -36,7 +36,7 @@ class Trivium {
 
     this.#state = new Array(288).fill(0)
     this.#pool = new Uint8Array(10)
-    this.#poolpos = 0
+    this.#counter = 0
 
     const keyBits = []
     const ivBits = []
@@ -182,7 +182,7 @@ class Trivium {
     const k = []
 
     for (let i = 0; i < 10; i++) {
-      const byte = this.#update(new Uint8Array([i])) ^ this.#pool[i]
+      const byte = this.#update(new Uint8Array([this.#counter + i])) ^ this.#pool[i]
       const bits = this.#byteToBits(byte)
 
       for (let j = 0; j < 8; j++) {
@@ -207,7 +207,7 @@ class Trivium {
     this.#update(data)
 
     for (let i = 0; i < data.length; i++) {
-      this.#pool[this.#poolpos++ % 10] ^= data[i]
+      this.#pool[this.#counter++ % 10] ^= data[i]
     }
 
     this.#rekey()
@@ -227,7 +227,7 @@ class Trivium {
     const p = new Uint8Array(r)
 
     for (let i = 0; i < r; i++) {
-      p[i] = this.#update(new Uint8Array([i]))
+      p[i] = this.#update(new Uint8Array([this.#counter + i]))
     }
 
     return Array.from(p)

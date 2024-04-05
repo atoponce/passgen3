@@ -6,7 +6,7 @@ class ChaCha {
   #keypos     // Pointer in the byte keystream.
   #keystream  // ChaCha keystream array.
   #state      // ChaCha state array.
-  #poolpos    // Pointer in the entropy pool.
+  #counter    // Pointer in the entropy pool.
   #pool       // Keyboard entropy pool.
 
   /** 
@@ -56,7 +56,7 @@ class ChaCha {
     this.#keypos = 0
     this.#keystream = Array.from(Array(64), (_, i) => 0)
     this.#pool = new Uint8Array(32)
-    this.#poolpos = 0
+    this.#counter = 0
     this.#state = [
       0x61707865, 0x3320646e, 0x79622d32, 0x6b206574, // "expand 32-byte k"
       key[0],     key[1],     key[2],     key[3],
@@ -196,10 +196,10 @@ class ChaCha {
     const k = []
 
     for (let i = 0; i < 32; i += 4) {
-      const k0 = this.#update(new Uint8Array([i])) ^ this.#pool[i]
-      const k1 = this.#update(new Uint8Array([i + 1])) ^ this.#pool[i + 1]
-      const k2 = this.#update(new Uint8Array([i + 2])) ^ this.#pool[i + 2]
-      const k3 = this.#update(new Uint8Array([i + 3])) ^ this.#pool[i + 3]
+      const k0 = this.#update(new Uint8Array([this.#counter + i])) ^ this.#pool[i]
+      const k1 = this.#update(new Uint8Array([this.#counter + i + 1])) ^ this.#pool[i + 1]
+      const k2 = this.#update(new Uint8Array([this.#counter + i + 2])) ^ this.#pool[i + 2]
+      const k3 = this.#update(new Uint8Array([this.#counter + i + 3])) ^ this.#pool[i + 3]
 
       k.push(k0 | (k1 << 8) | (k2 << 16) | (k3 << 24))
     }
@@ -222,7 +222,7 @@ class ChaCha {
     this.#update(data)
 
     for (let i = 0; i < data.length; i++) {
-      this.#pool[this.#poolpos++ & 0x1f] ^= data[i]
+      this.#pool[this.#counter++ & 0x1f] ^= data[i]
     }
 
     this.#rekey()
@@ -242,7 +242,7 @@ class ChaCha {
     const p = new Uint8Array(r)
 
     for (let i = 0; i < r; i++) {
-      p[i] = this.#update(new Uint8Array([i]))
+      p[i] = this.#update(new Uint8Array([this.#counter + i]))
     }
 
     return Array.from(p)
