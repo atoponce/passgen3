@@ -60,7 +60,7 @@
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <select class="form-select" id="cipher" onchange="selectCipher()">
+                                <select class="form-select" id="cipher" onchange="init()">
                                     <option value="chacha">ChaCha</option>ChaCha</option>
                                     <option value="spritz" selected>Spritz</option>
                                     <option value="trivium">Trivium</option>
@@ -111,7 +111,7 @@
                     </div>
                     <div class="row"> <!-- PassGen3 header -->
                         <p>This web app was inspired by <a href="https://theworld.com/~reinhold/passgen.html">the old Java applet version created by Arnold Reinhold</a>, the latest version of which was released in 2003. Because browsers no longer support Java applets, a JavaScript-based web app was created instead. This page is not (yet) mobile-friendly.</p>
-                        <p>To use this generator, just click anywhere in the text area above to ensure it's focused and start typing. <u>At first, dots will be displayed in the text window.</u> After you have typed 64 characters, your password will start to appear. Continue typing to complete the password. Keep typing to generate more passwords. If you wish to save your accumulated entropy across browser sessions, click the blue "Save Entropy" button. An RNG seed will be saved to your browser's local storage. The next time the generator loads, the seed will be loaded and you can immediately start generating passwords. Note: a seed is never saved automatically and must be done so manually.</p>
+                        <p>To use this generator, just click anywhere in the text area above to ensure it's focused and start typing. <u>At first, dots will be displayed in the text window.</u> After you have typed 64 characters, your password will start to appear. Continue typing to complete the password. Keep typing to generate more passwords. If you wish to save your accumulated entropy across browser sessions, click the blue "Save State" button. An RNG seed will be saved to your browser's local storage. The next time the generator loads, the seed will be loaded and you can immediately start generating passwords. Note: a seed is never saved automatically and must be done so manually.</p>
                         <p>You can type in anything you like or just close your eyes and type characters at random. For extra credit, type in the serial numbers from a couple of dollar bills or other paper currency. The web app records the time in milliseconds when you press down and release each key and uses these time values, along with the key characters you type, as a source of randomness. There will normally be enough variability in your typing times to ensure that the characters that appear in the text window are highly random.</p>
                         <div class="panel-body">
                         </div>
