@@ -18,7 +18,7 @@ function selectCipher() {
     CIPHER = new ChaCha()
   } else if (cipherChoice === "spritz") {
     CIPHER = new Spritz()
-  } else if (cipherChoice === "trivium") { // Coming soon
+  } else if (cipherChoice === "trivium") {
     CIPHER = new Trivium()
   }
 
@@ -35,8 +35,8 @@ function init() {
 
   // If a seed is saved from the last session size, absorb the seed and credit
   // the user with 64 characters already typed.
-  if (window.localStorage.passgen3seed) {
-    CIPHER.absorb(new Uint8Array(JSON.parse(window.localStorage.passgen3seed)))
+  if (localStorage.passgen3seed) {
+    CIPHER.absorb(new Uint8Array(JSON.parse(localStorage.passgen3seed)))
     TEXTAREA.value += ".".repeat(PRECHARS) + "\n"
     CHARCOUNT = 64
   } else if (CHARCOUNT < PRECHARS) {
@@ -294,6 +294,7 @@ function addChar() {
 
 /** Generate a seed from the cipher state and save to disk.  */
 function saveEntropy() {
+  localStorage.setItem("passgen3cipher", document.getElementById("cipher").value)
   localStorage.setItem("passgen3seed", JSON.stringify(CIPHER.squeeze(32)))
 }
 
