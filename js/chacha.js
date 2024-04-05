@@ -9,59 +9,18 @@ class ChaCha {
   #counter    // Pointer in the entropy pool.
   #pool       // Keyboard entropy pool.
 
-  /** 
-   * Initialize initial state of ChaCha with key, nonce, counter, and rounds.
-   * @param{Uint32Array} key - A 32-bit array of 8 unsigned integers.
-   * @param{Uint32Array} nonce - A 32-bit array of 3 unsigned integers.
-   * @param{number} counter - An unsigned 32-bit integer.
-   * @throws {Error}
-   */
-  constructor(key, nonce, counter, rounds) {
-    if (typeof key === "undefined") {
-      // RFC 8439 test vector key
-      key = new Uint32Array([
-        0x03020100, 0x07060504, 0x0b0a0908, 0x0f0e0d0c,
-        0x13121110, 0x17161514, 0x1b1a1918, 0x1f1e1d1c
-      ])
-    }
-
-    if (typeof counter === "undefined") {
-      // RFC 8439 test vector counter
-      counter = 1
-    }
-
-    if (typeof nonce === "undefined") {
-      // RFC 8439 test vector nonce
-      nonce = new Uint32Array([0x00000000, 0x4a000000, 0x00000000])
-    }
-
-    if (typeof rounds === "undefined") {
-      // https://eprint.iacr.org/2019/1492
-      rounds = 8
-    }
-
-    if (!(key instanceof Uint32Array)) {
-      throw new Error("Key should be an 8-element Uint32Array.")
-    }
-
-    if (!(nonce instanceof Uint32Array)) {
-      throw new Error("Nonce should be a 3-element Uint32Array.")
-    }
-
-    if (!Number.isInteger(rounds) || (rounds & 0x1) === 1 || rounds < 8) {
-      throw new Error("Rounds must be an even number no smaller than 8.")
-    }
-
-    this.#rounds = rounds
+  /** Initialize initial state of ChaCha with key, nonce, counter, and rounds. */
+  constructor() {
+    this.#rounds = 8
     this.#keypos = 0
     this.#keystream = Array.from(Array(64), (_, i) => 0)
     this.#pool = new Uint8Array(32)
     this.#counter = 0
     this.#state = [
       0x61707865, 0x3320646e, 0x79622d32, 0x6b206574, // "expand 32-byte k"
-      key[0],     key[1],     key[2],     key[3],
-      key[4],     key[5],     key[6],     key[7],
-      counter,    nonce[0],   nonce[1],   nonce[2]
+      0x03020100, 0x07060504, 0x0b0a0908, 0x0f0e0d0c, // RFC 8439 test vector key
+      0x13121110, 0x17161514, 0x1b1a1918, 0x1f1e1d1c, // RFC 8439 test vector key
+      0x00000001, 0x00000000, 0x4a000000, 0x00000000  // RFC 8439 counter & nonce
     ]
   }
 
@@ -71,6 +30,32 @@ class ChaCha {
    */
   get state() {
     return this.#state
+  }
+
+  /**
+   * Set the ChaCha state.
+   * @param {Array} s - An array of 16 32-byte integers.
+   */
+  set state(s) {
+    if (s instanceof Array && s.length === 16) {
+      // Clamp constants per spec to "expand 32-byte k", regardless.
+      s[0] = 0x61707865
+      s[1] = 0x3320646e
+      s[2] = 0x79622d32
+      s[3] = 0x6b206574
+
+      // Force 32-bit unsigned values for the rest of the state.
+      for (let i = 4; i < 16; i++) {
+          s[i] &= 0xffffffff
+          s[i] >>>= 0
+      }
+
+      this.#state = s
+    } else {
+      throw new Error(
+        "Invalid state. Must be an array of 16 32-byte integers."
+      )
+    }
   }
 
   /**
@@ -160,10 +145,6 @@ class ChaCha {
    * @throws {Error}
    */
   #update(data) {
-    if (!(data instanceof Uint8Array)) {
-      throw new Error("Data should be a Uint8Array.")
-    }
-
     const output = new Uint8Array(data.length)
 
     for (let i = 0; i < data.length; i++) {

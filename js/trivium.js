@@ -2,37 +2,19 @@
 
 /** Class representing the Trivium stream cipher. */
 class Trivium {
-  #state      
+  #state      // Trivium state bit array.
   #keystream  // Trivium keystream.
-  #pool
-  #counter
+  #pool       // Keyboard entropy pool.
+  #counter    // Keyboard entropy pool counter.
 
-  /**
-   * Initialize Trivium with key and IV.
-   * @param {Uint8Array} key - An 8-bit array of 10 unsigned integers.
-   * @param {Uint8Array} iv - An 8-bit array of 10 unsigned integers.
-   * @throws {Error}
-   */
-  constructor(key, iv) {
-    if (typeof key === "undefined") {
-      key = new Uint8Array([
-        0x53, 0x65, 0x74, 0x20, 0x54, 0x72, 0x69, 0x76, 0x69, 0x75 // "Set Triviu"
+  /** Initialize Trivium with key and IV. */
+  constructor() {
+    const key = new Uint8Array([
+      0x53, 0x65, 0x74, 0x20, 0x54, 0x72, 0x69, 0x76, 0x69, 0x75 // "Set Triviu"
       ])
-    }
-
-    if (typeof iv === "undefined") {
-      iv = new Uint8Array([
-        0x6d, 0x20, 0x6b, 0x65, 0x79, 0x20, 0x26, 0x20, 0x49, 0x56 // "m key & IV"
-      ])
-    }
-
-    if (!(key instanceof Uint8Array) || key.length !== 10) {
-      throw new Error("Key should be a 10-element Uint8Array.")
-    }
-
-    if (!(iv instanceof Uint8Array) || iv.length !== 10) {
-      throw new Error("IV should be a 10-element Uint8Array.")
-    }
+    const iv = new Uint8Array([
+      0x6d, 0x20, 0x6b, 0x65, 0x79, 0x20, 0x26, 0x20, 0x49, 0x56 // "m key & IV"
+    ])
 
     this.#state = new Array(288).fill(0)
     this.#pool = new Uint8Array(10)
@@ -78,6 +60,30 @@ class Trivium {
    */
   get state() {
     return this.#state
+  }
+
+  /**
+   * Set the Trivium state.
+   * @param {Array} s - An array of 16 32-byte integers.
+   */
+  set state(s) {
+    if (s instanceof Array && s.length === 288) {
+      // Force 1-bit values for the full state.
+      for (let i = 0; i < 288; i++) {
+        s[i] &= 1
+      }
+
+      // Clamp the last 3 bits to '1' to mitigate an all-zero state.
+      s[285] = 1
+      s[286] = 1
+      s[287] = 1
+
+      this.#state = s
+    } else {
+      throw new Error(
+        "Invalid state. Must be an array of 16 32-byte integers."
+      )
+    }
   }
 
   /**
@@ -146,10 +152,6 @@ class Trivium {
    * @throws {Error}
    */
   #update(data) {
-    if (!(data instanceof Uint8Array)) {
-      throw new Error("Data should be a Uint8Array.")
-    }
-
     const output = new Uint8Array(data.length)
 
     for (let i = 0; i < data.length; i++) {
