@@ -9,11 +9,29 @@ class Trivium {
 
   /** Initialize Trivium with key and IV. */
   constructor() {
+    const now = Date.now()
+    const perf = performance.now() >>> 0
+
+    const high = Math.trunc(now / 0x1_0000_0000) // Upper 32-bits
+    const low = (now & 0xffffffff) >>> 0  // Lower 32-bits
+
+    // Date.now() in milliseconds since Jan 1, 1970 00:00:00 is 48-bits long.
+    const t = [
+       (high >>  8) & 0xff, high & 0xff,
+       (low >> 24) & 0xff, (low >> 24) & 0xff, (low >>  8) & 0xff, low & 0xff,
+    ]
+
+    // That leaves 32-bits for performance.now(), or about 49.71 days of uptime.
+    const p = [
+      (perf >> 24) & 0xff, (perf >> 16) & 0xff, (perf >> 8) & 0xff, perf & 0xff
+    ]
+
     const key = new Uint8Array([
-      0x53, 0x65, 0x74, 0x20, 0x54, 0x72, 0x69, 0x76, 0x69, 0x75 // "Set Triviu"
-      ])
+      0x54, 0x72, 0x69, 0x76, 0x69, 0x75, 0x6d, 0x4B, 0x65, 0x79 // "TriviumKey"
+    ])
+
     const iv = new Uint8Array([
-      0x6d, 0x20, 0x6b, 0x65, 0x79, 0x20, 0x26, 0x20, 0x49, 0x56 // "m key & IV"
+      t[0], t[1], t[2], t[3], t[4], t[5], p[0], p[1], p[2], p[3] // Time-based IV
     ])
 
     this.#state = new Array(288).fill(0)
@@ -67,7 +85,11 @@ class Trivium {
    * @param {Array} s - An array of 16 32-byte integers.
    */
   set state(s) {
-    if (s instanceof Array && s.length === 288) {
+    if (
+      s instanceof Array && // Ensure array argument.
+      s.length === 288 && // Ensure 288 array elements.
+      s.filter(Number.isInteger).length === 288 // Ensure 288 numbers.
+    ) {
       // Force 1-bit values for the full state.
       for (let i = 0; i < 288; i++) {
         s[i] &= 1
