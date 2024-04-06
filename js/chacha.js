@@ -6,21 +6,27 @@ class ChaCha {
   #keypos     // Pointer in the byte keystream.
   #keystream  // ChaCha keystream array.
   #state      // ChaCha state array.
-  #counter    // Pointer in the entropy pool.
   #pool       // Keyboard entropy pool.
+  #pointer    // Pointer in the entropy pool.
 
-  /** Initialize initial state of ChaCha with key, nonce, counter, and rounds. */
+  /** Initialize initial state of ChaCha with key, nonce, pointer, and rounds. */
   constructor() {
+    const nonce = [
+      Math.trunc(Date.now() / 0x1_0000_0000), // Upper 32-bits
+      (Date.now() & 0xffffffff) >>> 0, // Lower 32-bits
+      performance.now() >>> 0 // Rolls over after ~49.71 days of uptime.
+    ]
+
     this.#rounds = 8
     this.#keypos = 0
     this.#keystream = Array.from(Array(64), (_, i) => 0)
     this.#pool = new Uint8Array(32)
-    this.#counter = 0
+    this.#pointer = 0
     this.#state = [
       0x61707865, 0x3320646e, 0x79622d32, 0x6b206574, // "expand 32-byte k"
       0x03020100, 0x07060504, 0x0b0a0908, 0x0f0e0d0c, // RFC 8439 test vector key
       0x13121110, 0x17161514, 0x1b1a1918, 0x1f1e1d1c, // RFC 8439 test vector key
-      0x00000001, 0x00000000, 0x4a000000, 0x00000000  // RFC 8439 counter & nonce
+      0x00000001,   nonce[0],   nonce[1],   nonce[2]  // Counter and time-based nonce
     ]
   }
 
@@ -37,7 +43,11 @@ class ChaCha {
    * @param {Array} s - An array of 16 32-byte integers.
    */
   set state(s) {
-    if (s instanceof Array && s.length === 16) {
+    if (
+      s instanceof Array && // Ensure array argument.
+      s.length === 16 && // Ensure 16 array elements.
+      s.filter(Number.isInteger).length === 16 // Ensure 16 numbers.
+    ) {
       // Clamp constants per spec to "expand 32-byte k", regardless.
       s[0] = 0x61707865
       s[1] = 0x3320646e
@@ -177,10 +187,10 @@ class ChaCha {
     const k = []
 
     for (let i = 0; i < 32; i += 4) {
-      const k0 = this.#update(new Uint8Array([this.#counter + i])) ^ this.#pool[i]
-      const k1 = this.#update(new Uint8Array([this.#counter + i + 1])) ^ this.#pool[i + 1]
-      const k2 = this.#update(new Uint8Array([this.#counter + i + 2])) ^ this.#pool[i + 2]
-      const k3 = this.#update(new Uint8Array([this.#counter + i + 3])) ^ this.#pool[i + 3]
+      const k0 = this.#update(new Uint8Array([this.#pointer + i])) ^ this.#pool[i]
+      const k1 = this.#update(new Uint8Array([this.#pointer + i + 1])) ^ this.#pool[i + 1]
+      const k2 = this.#update(new Uint8Array([this.#pointer + i + 2])) ^ this.#pool[i + 2]
+      const k3 = this.#update(new Uint8Array([this.#pointer + i + 3])) ^ this.#pool[i + 3]
 
       k.push(k0 | (k1 << 8) | (k2 << 16) | (k3 << 24))
     }
@@ -203,7 +213,7 @@ class ChaCha {
     this.#update(data)
 
     for (let i = 0; i < data.length; i++) {
-      this.#pool[this.#counter++ & 0x1f] ^= data[i]
+      this.#pool[this.#pointer++ & 0x1f] ^= data[i]
     }
 
     this.#rekey()
@@ -223,7 +233,7 @@ class ChaCha {
     const p = new Uint8Array(r)
 
     for (let i = 0; i < r; i++) {
-      p[i] = this.#update(new Uint8Array([this.#counter + i]))
+      p[i] = this.#update(new Uint8Array([this.#pointer + i]))
     }
 
     return Array.from(p)
