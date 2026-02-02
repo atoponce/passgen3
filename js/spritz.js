@@ -24,6 +24,7 @@ class Spritz {
        (low >> 24) & 0xff, (low >> 24) & 0xff, (low >>  8) & 0xff, low & 0xff,
     ]
 
+    // That leaves 32-bits for performance.now(), or about 49.71 days of uptime.
     const p = [
       (perf >> 24) & 0xff, (perf >> 16) & 0xff, (perf >> 8) & 0xff, perf & 0xff
     ]
