@@ -73,7 +73,7 @@ The application allows you to save to disk any entropy you've accumulated while 
 a 256-bit RNG seed from the RNG state to your browser's `localStorage`:
 
 ```jaavscript
-localStorage.setItem("spritzSeed", JSON.stringify(SPRITZ.squeeze(32)))
+localStorage.setItem("spritzSeed", JSON.stringify(CIPHER.squeeze(32)))
 ```
 
 The next time your browser starts, or if the page reloads, it will load the seed from `localStorage`
@@ -81,7 +81,7 @@ into the RNG state before absorbing the browser's fingerprint:
 
 ```jaavscript
 if (window.localStorage.spritzSeed) {
-  SPRITZ.absorb(JSON.parse(window.localStorage.spritzSeed))
+  CIPHER.absorb(JSON.parse(window.localStorage.spritzSeed))
 }
 
 const fpBytes = []
@@ -104,7 +104,7 @@ let a, q
 const min = 65536 % r
 
 do {
-  a = SPRITZ.squeeze(2)
+  a = CIPHER.squeeze(2)
   q = (a[0] << 8) | a[1]
 } while (q < min) // avoid biased choice
 
