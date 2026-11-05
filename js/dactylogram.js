@@ -1,7 +1,7 @@
 "use strict"
 
 /**
- * Basic generation of a unique browser fingerprint for premuting Spritz.
+ * Basic generation of a unique browser fingerprint for permuting the RNG.
  * The goal is to be unique enough from other users. While there are better
  * fingerprinting tools out there, this should be "good enough" for password
  * generation. However, I'm open to improvements without getting too complex.
@@ -103,7 +103,7 @@ function generateFingerprint() {
 
   fingerprint.push(canvas.toDataURL())
 
-  // Adblocking
+  // Ad blocking
   const ads = document.createElement("div")
   ads.setAttribute("id", "ads")
   document.body.appendChild(ads)
